@@ -1,0 +1,7 @@
+{
+  "usingComponents": {
+    "i-avatar": "/static/iview/avatar/index",
+    "i-icon": "/static/iview/icon/index"
+  }
+}
+

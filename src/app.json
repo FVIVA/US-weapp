@@ -1,0 +1,58 @@
+{
+  "pages": [
+    "pages/enter/main",
+    "pages/index/main",
+    "pages/square/main",
+    "pages/chat/main",
+    "pages/personal/main",
+    "pages/goodsDetail/main",
+    "pages/sendGoods/main",
+    "pages/sendInfo/main",
+    "pages/goodsList/main",
+    "pages/infoDetail/main",
+    "pages/auth/main",
+    "pages/data/main",
+    "pages/myGoods/main",
+    "pages/editGoods/main",
+    "pages/qrcode/main"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#fff",
+    "navigationBarTitleText": "WeChat",
+    "navigationBarTextStyle": "black"
+  },
+  "tabBar": {
+    "color": "#999",
+    "backgroundColor": "#fafafa",
+    "selectedColor": "#333",
+    "borderStyle": "white",
+    "list": [{
+      "text": "首页",
+      "pagePath": "pages/index/main",
+      "iconPath": "/static/images/shouye.png",
+      "selectedIconPath": "/static/images/shouye-tianchong.png"
+    }, {
+      "text": "广场",
+      "pagePath": "pages/square/main",
+      "iconPath": "/static/images/camera.png",
+      "selectedIconPath": "/static/images/camerafill.png"
+    }, {
+      "text": "聊天",
+      "pagePath": "pages/chat/main",
+      "iconPath": "static/images/tixing.png",
+      "selectedIconPath": "static/images/tixing-tianchong.png"
+    }, {
+      "text": "我的",
+      "pagePath": "pages/personal/main",
+      "iconPath": "static/images/wode.png",
+      "selectedIconPath": "static/images/wode-tianchong.png"
+    }],
+    "position": "bottom"
+  },
+  "permission": {
+    "scope.userLocation": {
+      "desc": "你的位置信息将用于快速定位你的坐标"
+    }
+  }
+}
