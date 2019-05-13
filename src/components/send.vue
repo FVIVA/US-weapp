@@ -12,8 +12,7 @@
         </span>
       </div>
     </div>
-    <div @click="sendModal = !sendModal" class="sendBt" :class="{ active: sendModal }">
-    </div>
+      <button open-type="getUserInfo" class="sendBt" @getuserinfo="onGetUserInfo" :class="{ active: sendModal }"></button>
   </div>
 </template>
 
@@ -22,6 +21,14 @@ export default {
   data () {
     return {
       sendModal: false
+    }
+  },
+  computed: {
+    userInfo () {
+      return this.$store.state.userInfo
+    },
+    userId () {
+      return this.$store.state.openId.openId
     }
   },
   methods: {
@@ -33,6 +40,44 @@ export default {
     toSendInfo () {
       wx.navigateTo({
         url: '/pages/sendInfo/main'
+      })
+    },
+    onGetUserInfo (e) {
+      const wxInfo = e.mp.detail.userInfo
+      this.sendModal = !this.sendModal
+      if (this.userInfo.nickname) {
+        return 0
+      }
+      const user = {
+        nickname: wxInfo.nickName,
+        avatar: wxInfo.avatarUrl,
+        gender: wxInfo.gender,
+        user_id: this.userId
+      }
+      wx.cloud.callFunction({
+        name: 'addUser',
+        data: user
+      }).then(res => {
+        if (res.result.data.length) {
+          console.log('欢迎', res.result.data[0].nickname)
+          this.$store.commit('updateIsLogin', true)
+          this.$store.commit('updateUser', res.result.data[0])
+          console.log(this.userInfo)
+        } else {
+          console.log('添加新用户')
+          const userInfo = {
+            nickname: wxInfo.nickName,
+            avatar: wxInfo.avatarUrl,
+            gender: wxInfo.gender,
+            intergral: 100,
+            user_id: this.userId,
+            user_name: '',
+            user_type: 0,
+            age: 0
+          }
+          this.$store.commit('updateIsLogin', true)
+          this.$store.commit('updateUser', userInfo)
+        }
       })
     }
   }

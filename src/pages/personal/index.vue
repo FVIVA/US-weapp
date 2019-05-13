@@ -5,35 +5,33 @@
     </div>
     <div class="main">
       <dl class="ub-box z-padding-all-10-px" style="background:#fff">
-      <dd class="ub-flex-1 z-font-size-18 z-color-333 ub-box ub-ver-v z-padding-h-10-px">
-        <button v-if="!isLogin"
-          class="loginBtn"
-          lang="zh_CN"
-          open-type="getUserInfo"
-          @getuserinfo="onGetUserInfo">登录</button>
-        <ul v-if="isLogin" class="ub-box z-margin-left-10-px ub-col">
-        </ul>
-      </dd>
-    </dl>
+        <dd class="ub-flex-1 z-font-size-18 z-color-333 ub-box ub-ver-v z-padding-h-10-px">
+          <button v-if="!isLogin"
+            class="loginBtn"
+            lang="zh_CN"
+            open-type="getUserInfo"
+            @getuserinfo="onGetUserInfo">登录</button>
+          <ul v-if="isLogin" class="ub-box z-margin-left-10-px ub-col">
+          </ul>
+        </dd>
+      </dl>
       <div class="info" v-if="isLogin">
         <span v-if="userInfo.isAuthed" class="auth" style="border: 2px #4ddfa9 solid;">已认证</span>
         <span v-if="!userInfo.isAuthed" class="auth" style="border: 2px #ff3b53 solid;">未认证</span>
-        <img :src="wxInfo.avatarUrl">
+        <img :src="userInfo.avatar">
         <br>
-        <span style="font-size: 28rpx; margin-right:20rpx;">{{wxInfo.nickName}}</span>
+        <span style="font-size: 28rpx; margin-right:20rpx;">{{userInfo.nickname}}</span>
         <br>
         <span style="font-size:24rpx; color:#aaa;">
-          {{userInfo.location}} | 交换{{userInfo.changeCount}}次 | {{userInfo.age}} | {{wxInfo.gender}}
+          {{userInfo.school || '-'}} | 交换{{userInfo.changeCount}}次 | {{userInfo.age}} | {{userInfo.gender}}
         </span>
       </div>
       <i-cell-group v-if="isLogin">
-        <i-cell title="我的动态" is-link url="/pages/infoDetail/main"></i-cell>
-        <!-- <i-cell title="跳转到首页" is-link url="/pages/dashboard/index"></i-cell> -->
-        <!-- <i-cell title="只有 footer 点击有效" is-link url="/pages/dashboard/index" only-tap-footer></i-cell> -->
-        <i-cell title="我的物品" is-link url="/pages/myGoods/main"></i-cell>
-        <i-cell title="学生认证" is-link url="/pages/auth/main"></i-cell>
-        <i-cell title="修改资料" is-link url="/pages/data/main"></i-cell>
-        <i-cell title="退出登录" @click.stop="exitLogin()"></i-cell>
+        <i-cell title="我的动态" is-link url="/pages/infoDetail/main"><i-icon type="camera" slot="icon" /></i-cell>
+        <i-cell title="我的物品" is-link url="/pages/myGoods/main"><i-icon type="commodity" slot="icon" /></i-cell>
+        <i-cell title="学生认证" is-link url="/pages/auth/main"><i-icon type="addressbook" slot="icon" /></i-cell>
+        <i-cell title="修改资料" is-link url="/pages/data/main"><i-icon type="editor" slot="icon" /></i-cell>
+        <i-cell title="退出登录" @click.stop="exitLogin()"><i-icon type="undo" slot="icon"/></i-cell>
       </i-cell-group>
     </div>
     <send></send>
@@ -51,35 +49,64 @@ export default {
   },
   data () {
     return {
-      sendModal: false,
-      userInfo: {
-        userAvatar: 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1554039732317&di=1aa15529d278ce843bec980885fc161e&imgtype=0&src=http%3A%2F%2Fpic.qqtn.com%2Fup%2F2019-3%2F2019030809345562253.jpg',
-        userName: '小桃',
-        location: '杭州电子科技大学',
-        changeCount: 0,
-        age: '95后',
-        gender: '男',
-        isAuthed: false
-      }
+      sendModal: false
     }
   },
   computed: {
     isLogin () {
       return this.$store.state.isLogin
     },
-    wxInfo () {
+    userInfo () {
       return this.$store.state.userInfo
+    },
+    userId () {
+      return this.$store.state.openId.openId
     }
   },
   methods: {
     toEditInfo () {},
     onGetUserInfo (e) {
-      this.$store.commit('updateIsLogin', true)
-      this.$store.commit('updateUser', e.mp.detail.userInfo)
+      const wxInfo = e.mp.detail.userInfo
+      if (this.userInfo.nickname) {
+        return 0
+      }
+      const user = {
+        nickname: wxInfo.nickName,
+        avatar: wxInfo.avatarUrl,
+        gender: wxInfo.gender,
+        user_id: this.userId
+      }
+      wx.cloud.callFunction({
+        name: 'addUser',
+        data: user
+      }).then(res => {
+        if (res.result.data.length) {
+          console.log('欢迎', res.result.data[0].nickname)
+          console.log(res)
+          this.$store.commit('updateIsLogin', true)
+          this.$store.commit('updateUser', res.result.data[0])
+          console.log(this.userInfo)
+        } else {
+          console.log('添加新用户')
+          const userInfo = {
+            nickname: wxInfo.nickame,
+            avatar: wxInfo.avatarUrl,
+            gender: wxInfo.gender,
+            intergral: 100,
+            user_id: this.userId,
+            user_name: '',
+            user_type: 0,
+            age: 0
+          }
+          this.$store.commit('updateIsLogin', true)
+          this.$store.commit('updateUser', userInfo)
+        }
+      })
     },
     exitLogin () {
       this.$store.commit('updateIsLogin', false)
       this.$store.commit('cleanUserInfo')
+      console.log(this.isLogin)
     }
   }
 }

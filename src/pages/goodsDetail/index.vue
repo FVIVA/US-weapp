@@ -1,21 +1,22 @@
 <template>
   <div class="box">
     <swiper class="swiper" circular="true" autoplay="true" interval="5000" duration="1000">
-      <block v-for="(item, index) in goodsInfo.images" :index="index" :key="item.id">
+      <block v-for="(item, index) in goodsInfo.goods_img" :index="index" :key="item.id">
           <swiper-item>
-            <image style="width: 100%;" :src="item.url" class="slide-image" mode="aspectFill"/>
+            <image @click="previewGoods" style="width: 100%;" :src="item" class="slide-image" mode="aspectFill"/>
           </swiper-item>
       </block>
     </swiper>
     <div class="user-info">
-      <img :src="userInfo.avatar">
+      <img :src="userInfo.avatar" @click="toUserDetail(userInfo.user_id)">
       <br>
       {{userInfo.nickname}}
     </div>
     <div class="main">
       <div class="goods-info">
-        <h2>{{goodsInfo.name}}</h2>
-        <p class="goods-info__des">{{goodsInfo.des}}</p>
+        <h2>{{goodsInfo.goods_name}}</h2>
+        <span style="color:#888; font-size:22rpx;">发布于{{goodsInfo.create_time}}</span>
+        <p class="goods-info__des">{{goodsInfo.remark}}</p>
         <div class="goods-info__foot">
           <span class="location">
             <span style="color: #888;">{{goodsInfo.price}}</span>U币
@@ -34,103 +35,71 @@
     </div>
     <div class="footer">
       <div class="likeCount">
-        <span style="color: red;">{{goodsInfo.likeCount}}</span>人点赞
+        <span style="color: red;">{{goodsInfo.like_count}}</span>人点赞
       </div>
       <div class="more-goods">
-        <div class="more-goods__title">更多好物待置换</div>
+        <div class="more-goods__title">更多好物待置换  <span @click="toMore" style="font-size: 24rpx;" >more</span></div>
+        
         <div class="more-goods__item" v-for="item in moreGoodList" :key="item.id">
-          <img class="more-goods__item_pic" :src="item.pic[0]">
-          <div class="more-goods__item_title">{{item.title}}</div>
+          <img class="more-goods__item_pic" :src="item.goods_img[0]" @click="toGoodsDetail(item._id)">
+          <div class="more-goods__item_title">{{item.goods_name}}</div>
         </div>
       </div>
     </div>
     <div class="want">
-      <i-button style="width: 200rpx" bind:click="handleClick" type="success" shape="circle">联系</i-button>
-      <i-button style="width: 200rpx;" type="info" shape="circle" @click="scanCode">置换</i-button>
+      <i-button style="width: 400rpx" bind:click="handleClick" shape="circle">联系物主</i-button>
+      <i-button style="width: 400rpx;" shape="circle" @click="scanCode">扫码置换</i-button>
     </div>
   </div>
 </template>
 
 <script>
+import {dateformate} from '@/utils/common'
 export default {
+  onLoad (options) {
+    this.goodsId = options.id
+  },
   onShow () {
-    wx.setNavigationBarTitle({title: `${this.goodsInfo.name}`})
+    this.getGoodsInfo()
+    wx.cloud.callFunction({ name: 'getGoodsList' }).then(res => {
+      this.moreGoodList = res.result.data.slice(-6)
+      console.log(res, 'goods')
+    })
+  },
+  created () {
   },
   data () {
     return {
-      userInfo: {
-        nickname: '小桃',
-        avatar: 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1554039732317&di=1aa15529d278ce843bec980885fc161e&imgtype=0&src=http%3A%2F%2Fpic.qqtn.com%2Fup%2F2019-3%2F2019030809345562253.jpg'
-      },
-      goodsInfo: {
-        isLiked: false,
-        likeCount: 0,
-        location: '杭州电子科技大学',
-        name: '和风樱花陶瓷碗',
-        price: 10,
-        des: '去年买的一组樱花碗，搬家带不走，送给本校同学去年买的一组樱花碗，搬家带不走，送给本校同学去年买的一组樱花碗，搬家带不走，送给本校同学去年买的一组樱花碗，搬家带不走，送给本校同学去年买的一组樱花碗，搬家带不走，送给本校同学',
-        images: [
-          {
-            url: 'https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=3071936428,416441458&fm=11&gp=0.jpg'
-          },
-          {
-            url: 'https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=30686527,2552501798&fm=26&gp=0.jpg'
-          },
-          {
-            url: 'https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=2191757348,1263564221&fm=26&gp=0.jpg'
-          },
-          {
-            url: 'https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=626573449,3602848114&fm=26&gp=0.jpg'
-          },
-          {
-            url: 'https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=3144994808,2728675571&fm=26&gp=0.jpg'
-          },
-          {
-            url: 'https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=3680688129,3013275455&fm=26&gp=0.jpg'
-          }
-        ]
-      },
-      moreGoodList: [
-        {
-          userAvatar: 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1554039732317&di=1aa15529d278ce843bec980885fc161e&imgtype=0&src=http%3A%2F%2Fpic.qqtn.com%2Fup%2F2019-3%2F2019030809345562253.jpg',
-          userName: '小桃',
-          pic: [ 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1554040104005&di=916bea5645e8c6ee2ba4a5326f757f95&imgtype=0&src=http%3A%2F%2Fimg17.3lian.com%2Fd%2Ffile%2F201701%2F23%2F896b407a549be54678caa0a81a76dfc9.jpg', 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1554040320786&di=3b0de58dc220ab9cde367bd4a61a39fe&imgtype=0&src=http%3A%2F%2Fb-ssl.duitang.com%2Fuploads%2Fitem%2F201803%2F26%2F20180326153414_MP4Xt.jpeg' ],
-          title: '小清醒日系台历',
-          des: '小清醒日系台历小清醒日系台历小清醒日系台历小清醒日系台历小清醒日系台历小清醒日系台历小清醒日系台历小清醒日系台历',
-          likeCount: 0,
-          isLiked: 0
-        },
-        {
-          userAvatar: 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1554039732317&di=1aa15529d278ce843bec980885fc161e&imgtype=0&src=http%3A%2F%2Fpic.qqtn.com%2Fup%2F2019-3%2F2019030809345562253.jpg',
-          userName: '小桃',
-          pic: [ 'https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=3071936428,416441458&fm=11&gp=0.jpg', 'https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=3071936428,416441458&fm=11&gp=0.jpg' ],
-          title: '小清醒日系台历',
-          des: '小清醒日系台历小清醒日系台历小清醒日系台历小清醒日系台历小清醒日系台历小清醒日系台历小清醒日系台历小清醒日系台历',
-          likeCount: 0,
-          isLiked: 1
-        },
-        {
-          userAvatar: 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1554039732317&di=1aa15529d278ce843bec980885fc161e&imgtype=0&src=http%3A%2F%2Fpic.qqtn.com%2Fup%2F2019-3%2F2019030809345562253.jpg',
-          userName: '小桃',
-          pic: [ 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1554040104005&di=916bea5645e8c6ee2ba4a5326f757f95&imgtype=0&src=http%3A%2F%2Fimg17.3lian.com%2Fd%2Ffile%2F201701%2F23%2F896b407a549be54678caa0a81a76dfc9.jpg', 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1554040320786&di=3b0de58dc220ab9cde367bd4a61a39fe&imgtype=0&src=http%3A%2F%2Fb-ssl.duitang.com%2Fuploads%2Fitem%2F201803%2F26%2F20180326153414_MP4Xt.jpeg' ],
-          title: '小清醒日系台历',
-          des: '小清醒日系台历小清醒日系台历小清醒日系台历小清醒日系台历小清醒日系台历小清醒日系台历小清醒日系台历小清醒日系台历',
-          likeCount: 0,
-          isLiked: 0
-        },
-        {
-          userAvatar: 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1554039732317&di=1aa15529d278ce843bec980885fc161e&imgtype=0&src=http%3A%2F%2Fpic.qqtn.com%2Fup%2F2019-3%2F2019030809345562253.jpg',
-          userName: '小桃',
-          pic: [ 'https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=3071936428,416441458&fm=11&gp=0.jpg', 'https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=3071936428,416441458&fm=11&gp=0.jpg' ],
-          title: '小清醒日系台历',
-          des: '小清醒日系台历小清醒日系台历小清醒日系台历小清醒日系台历小清醒日系台历小清醒日系台历小清醒日系台历小清醒日系台历',
-          likeCount: 0,
-          isLiked: 1
-        }
-      ]
+      goodsId: '',
+      userInfo: {},
+      goodsInfo: {},
+      moreGoodList: []
     }
   },
   methods: {
+    getGoodsInfo () {
+      const data = {
+        _id: this.goodsId
+      }
+      wx.cloud.callFunction({
+        name: 'getGoodsList',
+        data: data
+      }).then(res => {
+        this.goodsInfo = res.result.data[0]
+        this.goodsInfo.create_time = dateformate(this.goodsInfo.create_time)
+        wx.setNavigationBarTitle({title: `${this.goodsInfo.goods_name}`})
+      }).then(() => {
+        const userData = {
+          user_id: this.goodsInfo.user_id
+        }
+        wx.cloud.callFunction({
+          name: 'getOneUser',
+          data: userData
+        }).then(res => {
+          this.userInfo = res.result.data[0]
+        })
+      })
+    },
     changeState () {
       this.goodsInfo.isLiked = !this.goodsInfo.isLiked
     },
@@ -142,9 +111,31 @@ export default {
           console.log(res)
         }
       })
+    },
+    previewGoods (e) {
+      var current = e.target.dataset.src
+      var urlsList = this.goodsInfo.goods_img
+      console.log(urlsList)
+      wx.previewImage({
+        current: current, // 当前显示图片的http链接
+        urls: urlsList// 需要预览的图片http链接列表
+      })
+    },
+    toGoodsDetail (id) {
+      wx.navigateTo({
+        url: `/pages/goodsDetail/main?id=${id}`
+      })
+    },
+    toUserDetail (id) {
+      wx.navigateTo({
+        url: `/pages/personIndex/main?id=${id}`
+      })
+    },
+    toMore () {
+      wx.navigateTo({
+        url: '/pages/goodsList/main'
+      })
     }
-  },
-  created () {
   }
 }
 </script>
@@ -256,6 +247,7 @@ export default {
   z-index: 999;
   display: flex;
   justify-content: space-between;
+  color: #fff;
   button {
     width: 100rpx;
     display: inline-block;

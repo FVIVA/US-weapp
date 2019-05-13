@@ -14,7 +14,8 @@
     "pages/data/main",
     "pages/myGoods/main",
     "pages/editGoods/main",
-    "pages/qrcode/main"
+    "pages/qrcode/main",
+    "pages/personIndex/main"
   ],
   "window": {
     "backgroundTextStyle": "light",
@@ -37,12 +38,8 @@
       "pagePath": "pages/square/main",
       "iconPath": "/static/images/camera.png",
       "selectedIconPath": "/static/images/camerafill.png"
-    }, {
-      "text": "聊天",
-      "pagePath": "pages/chat/main",
-      "iconPath": "static/images/tixing.png",
-      "selectedIconPath": "static/images/tixing-tianchong.png"
-    }, {
+    },
+    {
       "text": "我的",
       "pagePath": "pages/personal/main",
       "iconPath": "static/images/wode.png",

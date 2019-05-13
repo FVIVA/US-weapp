@@ -5,33 +5,37 @@ const store = new Vuex.Store({
   state: {
     isLogin: false,
     userInfo: {
-      avatarUrl: '',
-      city: '',
+      nickname: '',
+      avatar: '',
       gender: '',
-      nickName: '',
-      province: '',
-      country: ''
+      intergral: 0,
+      user_id: '',
+      user_name: '',
+      user_type: 0,
+      age: 0
     },
     openId: ''
   },
   mutations: {
     updateIsLogin: (state, change) => {
-      state.openId = change
+      state.isLogin = change
     },
     updateUserInfo: (state, change) => {
       state.userInfo = change
     },
     updateOpenId: (state, change) => {
-      state.isLogin = change
+      state.openId = change
     },
     cleanUserInfo: (state) => {
       state.userInfo = {
-        avatarUrl: '',
-        city: '',
+        nickname: '',
+        avatar: '',
         gender: '',
-        nickName: '',
-        province: '',
-        country: ''
+        intergral: 0,
+        user_id: '',
+        user_name: '',
+        user_type: 0,
+        age: 0
       }
     },
     updateUser: (state, change) => {

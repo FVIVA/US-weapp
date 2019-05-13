@@ -2,23 +2,10 @@
   <div class="box">
     <img class="bg" src="../../../static/images/pesonbg.jpg">
     <div class="main">
-      <div class="item">
-        <span class="title">学校</span>
-        <input type="text" confirm-type="next">
-      </div>
-      <div class="item">
-        <span class="title">学院</span>
-        <input type="text" confirm-type="next">
-      </div>
-      <div class="item">
-        <span class="title">学号</span>
-        <input type="text" confirm-type="next">
-      </div>
-      <div class="item">
-        <span class="title">姓名</span>
-        <input type="text" confirm-type="next">
-      </div>
-      <button style="width: 90%;" @click="toEditInfo">完成</button>
+      <i-input v-model="auth.user_name" mode="wrapped" placeholder="请输入姓名" />
+      <i-input v-model="auth.school_number" type="number" mode="wrapped" placeholder="请输入学号" />
+      <i-input v-model="auth.class_number" type="number" mode="wrapped" placeholder="请输入班级号" />
+      <i-button class="sb-button" type="warning" @click="toEditInfo">去认证</i-button>
     </div>
   </div>
 </template>
@@ -32,7 +19,7 @@ export default {
   },
   data () {
     return {
-
+      auth: {}
     }
   },
   methods: {
@@ -56,32 +43,19 @@ export default {
 }
 .main {
   width: 90%;
-  // height: 100%;
+  height: 80vh;
   position: absolute;
-  top: 220rpx;
+  top: 0;
   left: 0;
   right: 0;
   margin: auto;
   background: rgba(#fff,0.8);
   padding: 20rpx;
-  .item {
-    width: 100%;
-    height: 120rpx;
-    line-height: 120rpx;
-    text-align: center;
-    .title {
-      margin-bottom: 30rpx;
-      display: inline-block;
-      font-size: 28rpx;
-    }
-    input {
-      display: inline-block;
-      border-bottom: #ccc 1px solid;
-      margin-left: 20rpx;
-      font-size: 28rpx;
-    }
-  }
-  
+}
+.sb-button {
+  width: 90%;
+  position: fixed;
+  bottom: 100rpx;
 }
 </style>
 

@@ -3,23 +3,20 @@
     <img class="bg" src="../../../static/images/pesonbg.jpg">
     <div class="info_item">
       <i-panel hide-border>
-        <input  placeholder="旧物名字...">
+        <input  placeholder="旧物名字..." v-model="goods.goods_name">
       </i-panel>
     </div>
     <div class="info_item">
       <i-panel hide-border>
-        <input type="number"  placeholder="添加价格">
+        <input type="number"  placeholder="添加价格" v-model="goods.price">
       </i-panel>
     </div>
     <div class="info_item">
       <i-panel hide-border>
         <view style="padding: 10rpx;">
           <div class="info_img">
-            <div class="info_img_item" v-for="item in pics" :key="item.id">
+            <div class="info_img_item" v-for="item in goods.goods_img" :key="item.id">
               <img :src="item">
-            </div>
-            <div @click="chooseImg" class="info_img_item" v-if="showAdd">
-              <img class="add-img" src="../../../static/images/add.png">
             </div>
           </div>
         </view>
@@ -28,7 +25,7 @@
     <div class="info_item">
       <i-panel hide-border>
         <view style="padding: 10rpx;">
-          <textarea class="info_txt" placeholder="写下你与旧物的故事..."></textarea>
+          <textarea class="info_txt" placeholder="写下你与旧物的故事..." v-model="goods.remark"></textarea>
         </view>
       </i-panel>
     </div>
@@ -36,32 +33,41 @@
       <i-panel hide-border>
         <view style="padding: 10rpx;">
           <img style="width:50rpx; height:50rpx;" src="../../../static/images/weizhi.png" @click="getLocation">
-          <input style="display: inline-block; width:80%;" v-model="info.location" placeholder="你的位置">
+          <input style="display: inline-block; width:80%;" v-model="goods.location" placeholder="你的位置">
         </view>
       </i-panel>
     </div>
-    <button style="background: #fff;">确定</button>
+    <button style="background: #fff;" @click="send">发布</button>
   </div>
 </template>
 <script>
 export default {
+  onLoad (options) {
+    this.goodsId = options.id
+    console.log(options)
+  },
   onShow () {
     wx.setNavigationBarTitle({title: '编辑旧物'})
+    this.getGoodsInfo()
   },
   data () {
     return {
-      info: {
-        txt: '',
-        pics: [],
-        location: ''
+      goods: {
+        goods_img: [],
+        user_avatar: '',
+        user_id: this.userId,
+        location: '',
+        price: 0,
+        remark: '',
+        goods_name: ''
       },
-      pics: [],
-      showAdd: true
+      showAdd: true,
+      goodsId: ''
     }
   },
   computed: {
-    picLength () {
-      return this.pics.length
+    userInfo () {
+      return this.$store.state.userInfo
     }
   },
   watch: {
@@ -72,45 +78,55 @@ export default {
     }
   },
   methods: {
-    chooseImg () {
-      let that = this
-      wx.chooseImage({
-        count: 3,
-        sizeType: ['original', 'compressed'], // 可以指定是原图还是压缩图，默认二者都有
-        sourceType: ['album', 'camera'], // 可以指定来源是相册还是相机，默认二者都有
-        success: function (res) {
-          console.log(res.tempFilePaths.length)
-          // 把每次选择的图push进数组
-          res.tempFilePaths.forEach(v => {
-            if (that.pics.length >= 3) {
-              return 0
-            }
-            that.pics.push(v)
-          })
-        }
+    getGoodsInfo () {
+      const data = {
+        _id: this.goodsId
+      }
+      wx.cloud.callFunction({
+        name: 'getGoodsList',
+        data: data
+      }).then(res => {
+        this.goods = res.result.data[0]
+        console.log(res)
       })
     },
     getLocation () {
-      // let that = this
-      // wx.getLocation({
-      //   type: 'gcj02', // 返回可以用于wx.openLocation的经纬度
-      //   success: function (res) {
-      //     var latitude = res.latitude// 维度
-      //     var longitude = res.longitude// 经度
-      //     console.log(res)
-      //     wx.openLocation({
-      //       latitude,
-      //       longitude,
-      //       scale: 18
-      //     })
-      //     // that.loadCity(latitude, longitude)
-      //   }
-      // })
       wx.chooseLocation({
         success: res => {
           // console.log(res)
-          this.info.location = res.address
+          this.goods.location = res.address
         }
+      })
+    },
+    send () {
+      this.goods.user_avatar = this.userInfo.avatar
+      this.goods.user_id = this.userInfo.user_id
+      this.goods.goods_id = this.goodsId
+      wx.cloud.callFunction({
+        name: 'updateGoods',
+        data: this.goods
+      }).then(res => {
+        wx.showToast({
+          title: '修改成功',
+          icon: 'success',
+          duration: 3000,
+          complete: () => {
+            setTimeout(() => {
+              wx.switchTab({
+                url: '/pages/personal/main'
+              })
+              this.goods = {
+                goods_img: [],
+                user_avatar: '',
+                user_id: '',
+                location: '',
+                price: 0,
+                remark: '',
+                goods_name: ''
+              }
+            }, 2000)
+          }
+        })
       })
     }
   }

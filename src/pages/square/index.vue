@@ -2,25 +2,27 @@
   <div>
     <img class="bg" src="../../../static/images/pesonbg.jpg">
     <div class="head">
-       <input placeholder="这是一个可以自动聚焦的input" auto-focus />
-       <i-icon type="search" size="24" color="#000"/>
+       <input placeholder="这是一个可以自动聚焦的input" auto-focus v-model="searchKey"/>
+       <i-icon type="search" size="24" color="#000" @click="searchDynamic" />
     </div>
     <div class="main">
-      <div class="info__item" v-for="(item,index) in infoList" :key="item.id">
+      <div class="info__item" v-for="(item,index) in dynamicList" :key="item.id">
         <div class="info__item_head">
           <span>
-            <i-avatar size="large" :src="item.userAvatar" style="margin-right:20rpx;"></i-avatar>{{item.userName}}
+            <i-avatar size="large" :src="item.avatar" style="margin-right:20rpx;" @click="toUserDetail(item.user_id)"></i-avatar>{{item.nickname}}
           </span>
-          <span class="want">{{item.time}}</span>
+          <span class="time">{{item.create_time}}</span>
         </div>
-        <div class="info__item_txt">{{item.txt}}</div>
-        <div class="info__item_pic">
-          <img v-for="(pic,picIndex) in item.pic" :src="pic" :key="pic.id">
-        </div>
+        <div class="info__item_txt">{{item.dynamic_content}}</div>
+         <div class="info__item_pic">
+          <!-- <div class="info__pic_item"> -->
+            <img v-for="(pic,picIndex) in item.dynamic_img" :src="pic" :key="pic.id" @click="previewDynamic(pic,index)">
+          <!-- </div> -->
+         </div>
         <div class="info__item_tool">
           <img v-if="!item.isLiked" src="/static/images/zan.png" @click="changeState(item)">
           <img v-else src="/static/images/zan2.png" @click="changeState(item)">
-          {{item.likeCount}}
+          {{item.like_count}}
         </div>
       </div>
     </div>
@@ -30,51 +32,28 @@
 
 <script>
 import send from '@/components/send'
+import {dateformate} from '@/utils/common'
 export default {
   onShow () {
     wx.setNavigationBarTitle({title: '广场'})
+    this.getDynamicList()
+    this.sendModal = false
   },
   components: {
     send
   },
+
   data () {
     return {
-      infoList: [
-        {
-          userAvatar: 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1554039732317&di=1aa15529d278ce843bec980885fc161e&imgtype=0&src=http%3A%2F%2Fpic.qqtn.com%2Fup%2F2019-3%2F2019030809345562253.jpg',
-          userName: '小桃',
-          txt: '今天天气好好',
-          pic: [
-            'https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=3071936428,416441458&fm=11&gp=0.jpg',
-            'https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=3071936428,416441458&fm=11&gp=0.jpg',
-            'https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=3071936428,416441458&fm=11&gp=0.jpg',
-            'https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=3071936428,416441458&fm=11&gp=0.jpg',
-            'https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=3071936428,416441458&fm=11&gp=0.jpg',
-            'https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=3071936428,416441458&fm=11&gp=0.jpg'
-          ],
-          isLiked: false,
-          likeCount: 0
-        },
-        {
-          userAvatar: 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1554039732317&di=1aa15529d278ce843bec980885fc161e&imgtype=0&src=http%3A%2F%2Fpic.qqtn.com%2Fup%2F2019-3%2F2019030809345562253.jpg',
-          userName: '小桃',
-          txt: '今天天气好好',
-          pic: [
-            'https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=3071936428,416441458&fm=11&gp=0.jpg',
-            'https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=3071936428,416441458&fm=11&gp=0.jpg',
-            'https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=3071936428,416441458&fm=11&gp=0.jpg',
-            'https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=3071936428,416441458&fm=11&gp=0.jpg',
-            'https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=3071936428,416441458&fm=11&gp=0.jpg',
-            'https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=3071936428,416441458&fm=11&gp=0.jpg'
-          ],
-          isLiked: false,
-          likeCount: 0
-        }
-      ],
-      sendModal: false
+      dynamicList: [],
+      sendModal: false,
+      searchKey: ''
     }
   },
   methods: {
+    time (date) {
+      return dateformate(date)
+    },
     changeState (info) {
       info.isLiked = !info.isLiked
       if (info.isLiked) {
@@ -82,6 +61,47 @@ export default {
       } else {
         info.likeCount--
       }
+    },
+    searchDynamic () {
+      if (!this.searchKey) {
+        this.getDynamicList()
+        return 0
+      }
+      const dynamicdata = {
+        dynamic_content: this.searchKey
+      }
+      wx.cloud.callFunction({
+        name: 'searchDynamic',
+        data: dynamicdata
+      }).then(res => {
+        console.log(res, 'as')
+        this.dynamicList = res.result.data.reverse()
+      })
+    },
+    getDynamicList () {
+      // const dynamicdata = {
+      //   dynamic_content: this.searchKey
+      // }
+      wx.cloud.callFunction({
+        name: 'getDynamicList'
+      }).then(res => {
+        this.dynamicList = res.result.data.reverse()
+        this.dynamicList.forEach(v => {
+          v.create_time = dateformate(v.create_time)
+        })
+      })
+    },
+    toUserDetail (id) {
+      wx.navigateTo({
+        url: `/pages/personIndex/main?id=${id}`
+      })
+    },
+    previewDynamic (pic, index) {
+      var urlsList = this.dynamicList.map(v => v.dynamic_img)[index]
+      wx.previewImage({
+        current: pic, // 当前显示图片的http链接
+        urls: urlsList// 需要预览的图片http链接列表
+      })
     }
   }
 }
@@ -122,18 +142,15 @@ export default {
   &_head {
     font-size: 28rpx;
     margin-bottom: 30rpx;
+    .time {
+      color: #ccc;
+      font-size: 22rpx;
+    }
   }
   &_txt {
     font-size: 24rpx;
     margin-bottom: 20rpx;
-  }
-  &_pic {
-    img {
-      width: 210rpx;
-      height: 210rpx;
-      margin: 0 10rpx 10rpx 10rpx;
-      border-radius: 3px;
-    }
+    padding-right: 40rpx;
   }
   &_tool {
     text-align: right;
@@ -145,6 +162,12 @@ export default {
       width: 40rpx;
       height: 40rpx;
       border-radius: 5px;
+    }
+  }
+  &_pic {
+    text-align: center;
+    img {
+      border-radius: 20rpx;
     }
   }
 }

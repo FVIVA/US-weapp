@@ -1,18 +1,18 @@
 <template>
   <div>
     <div class="head">
-       <input placeholder="这是一个可以自动聚焦的input" auto-focus />
-       <i-icon type="search" size="24" color="#000"/>
+       <input placeholder="这是一个可以自动聚焦的input" auto-focus v-model="searchKey" />
+       <i-icon type="search" size="24" color="#000" @click="searchGoods"/>
     </div>
     <div class="main">
       <div class="more-goods">
-      <div class="more-goods__item" v-for="item in moreGoodList" :key="item.id" @click="toGoodsDetail(item.id)">
-        <img class="more-goods__item_pic" :src="item.pic[0]">
+      <div class="more-goods__item" v-for="item in moreGoodList" :key="item.id" @click="toGoodsDetail(item._id)">
+        <img class="more-goods__item_pic" :src="item.goods_img[0]">
         <div class="more-goods__item_price">
           <img src="/static/images/jinbi.png">
           {{item.price}}
         </div>
-        <div class="more-goods__item_title">{{item.title}}</div>
+        <div class="more-goods__item_title">{{item.goods_name}}</div>
       </div>
     </div>
     </div>
@@ -22,81 +22,46 @@
 
 <script>
 import send from '@/components/send'
+import { shuffle } from '@/utils/common'
 export default {
   onShow () {
     wx.setNavigationBarTitle({title: '好物换取中'})
+    this.getGoodsList()
   },
   components: {
     send
   },
   data () {
     return {
-      moreGoodList: [
-        {
-          userAvatar: 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1554039732317&di=1aa15529d278ce843bec980885fc161e&imgtype=0&src=http%3A%2F%2Fpic.qqtn.com%2Fup%2F2019-3%2F2019030809345562253.jpg',
-          userName: '小桃',
-          pic: [ 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1554040104005&di=916bea5645e8c6ee2ba4a5326f757f95&imgtype=0&src=http%3A%2F%2Fimg17.3lian.com%2Fd%2Ffile%2F201701%2F23%2F896b407a549be54678caa0a81a76dfc9.jpg', 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1554040320786&di=3b0de58dc220ab9cde367bd4a61a39fe&imgtype=0&src=http%3A%2F%2Fb-ssl.duitang.com%2Fuploads%2Fitem%2F201803%2F26%2F20180326153414_MP4Xt.jpeg' ],
-          title: '小清醒日系台历',
-          des: '小清醒日系台历小清醒日系台历小清醒日系台历小清醒日系台历小清醒日系台历小清醒日系台历小清醒日系台历小清醒日系台历',
-          likeCount: 0,
-          isLiked: 0,
-          price: 10
-        },
-        {
-          userAvatar: 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1554039732317&di=1aa15529d278ce843bec980885fc161e&imgtype=0&src=http%3A%2F%2Fpic.qqtn.com%2Fup%2F2019-3%2F2019030809345562253.jpg',
-          userName: '小桃',
-          pic: [ 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1554040104005&di=916bea5645e8c6ee2ba4a5326f757f95&imgtype=0&src=http%3A%2F%2Fimg17.3lian.com%2Fd%2Ffile%2F201701%2F23%2F896b407a549be54678caa0a81a76dfc9.jpg', 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1554040320786&di=3b0de58dc220ab9cde367bd4a61a39fe&imgtype=0&src=http%3A%2F%2Fb-ssl.duitang.com%2Fuploads%2Fitem%2F201803%2F26%2F20180326153414_MP4Xt.jpeg' ],
-          title: '小清醒日系台历',
-          des: '小清醒日系台历小清醒日系台历小清醒日系台历小清醒日系台历小清醒日系台历小清醒日系台历小清醒日系台历小清醒日系台历',
-          likeCount: 0,
-          isLiked: 0,
-          price: 10
-        },
-        {
-          userAvatar: 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1554039732317&di=1aa15529d278ce843bec980885fc161e&imgtype=0&src=http%3A%2F%2Fpic.qqtn.com%2Fup%2F2019-3%2F2019030809345562253.jpg',
-          userName: '小桃',
-          pic: [ 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1554040104005&di=916bea5645e8c6ee2ba4a5326f757f95&imgtype=0&src=http%3A%2F%2Fimg17.3lian.com%2Fd%2Ffile%2F201701%2F23%2F896b407a549be54678caa0a81a76dfc9.jpg', 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1554040320786&di=3b0de58dc220ab9cde367bd4a61a39fe&imgtype=0&src=http%3A%2F%2Fb-ssl.duitang.com%2Fuploads%2Fitem%2F201803%2F26%2F20180326153414_MP4Xt.jpeg' ],
-          title: '小清醒日系台历',
-          des: '小清醒日系台历小清醒日系台历小清醒日系台历小清醒日系台历小清醒日系台历小清醒日系台历小清醒日系台历小清醒日系台历',
-          likeCount: 0,
-          isLiked: 0,
-          price: 10
-        },
-        {
-          userAvatar: 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1554039732317&di=1aa15529d278ce843bec980885fc161e&imgtype=0&src=http%3A%2F%2Fpic.qqtn.com%2Fup%2F2019-3%2F2019030809345562253.jpg',
-          userName: '小桃',
-          pic: [ 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1554040104005&di=916bea5645e8c6ee2ba4a5326f757f95&imgtype=0&src=http%3A%2F%2Fimg17.3lian.com%2Fd%2Ffile%2F201701%2F23%2F896b407a549be54678caa0a81a76dfc9.jpg', 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1554040320786&di=3b0de58dc220ab9cde367bd4a61a39fe&imgtype=0&src=http%3A%2F%2Fb-ssl.duitang.com%2Fuploads%2Fitem%2F201803%2F26%2F20180326153414_MP4Xt.jpeg' ],
-          title: '小清醒日系台历',
-          des: '小清醒日系台历小清醒日系台历小清醒日系台历小清醒日系台历小清醒日系台历小清醒日系台历小清醒日系台历小清醒日系台历',
-          likeCount: 0,
-          isLiked: 0,
-          price: 10
-        },
-        {
-          userAvatar: 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1554039732317&di=1aa15529d278ce843bec980885fc161e&imgtype=0&src=http%3A%2F%2Fpic.qqtn.com%2Fup%2F2019-3%2F2019030809345562253.jpg',
-          userName: '小桃',
-          pic: [ 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1554040104005&di=916bea5645e8c6ee2ba4a5326f757f95&imgtype=0&src=http%3A%2F%2Fimg17.3lian.com%2Fd%2Ffile%2F201701%2F23%2F896b407a549be54678caa0a81a76dfc9.jpg', 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1554040320786&di=3b0de58dc220ab9cde367bd4a61a39fe&imgtype=0&src=http%3A%2F%2Fb-ssl.duitang.com%2Fuploads%2Fitem%2F201803%2F26%2F20180326153414_MP4Xt.jpeg' ],
-          title: '小清醒日系台历',
-          des: '小清醒日系台历小清醒日系台历小清醒日系台历小清醒日系台历小清醒日系台历小清醒日系台历小清醒日系台历小清醒日系台历',
-          likeCount: 0,
-          isLiked: 0,
-          price: 10
-        },
-        {
-          userAvatar: 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1554039732317&di=1aa15529d278ce843bec980885fc161e&imgtype=0&src=http%3A%2F%2Fpic.qqtn.com%2Fup%2F2019-3%2F2019030809345562253.jpg',
-          userName: '小桃',
-          pic: [ 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1554040104005&di=916bea5645e8c6ee2ba4a5326f757f95&imgtype=0&src=http%3A%2F%2Fimg17.3lian.com%2Fd%2Ffile%2F201701%2F23%2F896b407a549be54678caa0a81a76dfc9.jpg', 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1554040320786&di=3b0de58dc220ab9cde367bd4a61a39fe&imgtype=0&src=http%3A%2F%2Fb-ssl.duitang.com%2Fuploads%2Fitem%2F201803%2F26%2F20180326153414_MP4Xt.jpeg' ],
-          title: '小清醒日系台历',
-          des: '小清醒日系台历小清醒日系台历小清醒日系台历小清醒日系台历小清醒日系台历小清醒日系台历小清醒日系台历小清醒日系台历',
-          likeCount: 0,
-          isLiked: 0,
-          price: 10
-        }
-      ],
-      sendModal: false
+      moreGoodList: [],
+      sendModal: false,
+      searchKey: ''
     }
   },
+  created () {
+  },
   methods: {
+    searchGoods () {
+      if (!this.searchKey) {
+        this.getGoodsList()
+        return 0
+      }
+      const goodsdata = {
+        goods_name: this.searchKey
+      }
+      wx.cloud.callFunction({
+        name: 'searchGoods',
+        data: goodsdata
+      }).then(res => {
+        console.log(res, 'as')
+        this.moreGoodList = res.result.data
+      })
+    },
+    getGoodsList () {
+      wx.cloud.callFunction({ name: 'getGoodsList' }).then(res => {
+        this.moreGoodList = shuffle(res.result.data)
+      })
+    },
     toGoodsDetail (id) {
       wx.navigateTo({
         url: `/pages/goodsDetail/main?id=${id}`
@@ -137,6 +102,7 @@ export default {
   margin-bottom: 20rpx;
   &__item{
     height: 450rpx;
+    width: 345rpx;
     display: inline-block;
     margin-bottom: 30rpx;
     border-radius: 5px;
@@ -148,6 +114,9 @@ export default {
     &_title {
       padding: 20rpx;
       font-size: 30rpx;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap
     }
     &_price {
       font-size: 24rpx;

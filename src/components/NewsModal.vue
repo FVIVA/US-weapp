@@ -4,11 +4,11 @@
     <div class="modal-main" v-show="value">
       <div class="btn" @click="showModal"></div>
       <div class="modal-main__inner">
-        <div class="title">{{news.title}}</div>
+        <div class="title">{{news.news_title}}</div>
         <p class="rule">
-          {{news.des}}
+          {{news.news_content}}
         </p>
-        <div class="image" :style="{backgroundImage: 'url(' + news.pic + ')', backgroundSize:'cover'}"></div>
+        <div class="image" :style="{backgroundImage: 'url(' + news.news_img + ')', backgroundSize:'cover'}"></div>
       </div>
     </div>
     <!-- <div class="btn" @click="showModal"></div> -->
@@ -58,7 +58,7 @@ export default {
 .modal-main {
 	position: fixed;
 	bottom: 0;
-	margin: 2.06rem auto 0;
+	margin: 1.06rem auto 0;
 	width: 7.5rem;
 	background-color: rgba($color: #fff, $alpha: 0.8);
 	overflow: hidden;
@@ -91,7 +91,7 @@ export default {
 }
 .rule {
 	margin: 0.56rem 0;
-	height: 2rem;
+	height: 3rem;
 	overflow: scroll;
   -webkit-overflow-scrolling: touch;/* ios 平滑滚动*/
 	overflow-scrolling: touch;
