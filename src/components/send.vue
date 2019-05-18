@@ -44,7 +44,11 @@ export default {
     },
     onGetUserInfo (e) {
       const wxInfo = e.mp.detail.userInfo
+      if (!wxInfo.nickName) {
+        return 0
+      }
       this.sendModal = !this.sendModal
+      // console.log(this.userInfo.nickname)
       if (this.userInfo.nickname) {
         return 0
       }
@@ -79,6 +83,16 @@ export default {
           this.$store.commit('updateUser', userInfo)
         }
       })
+      wx.cloud.callFunction({
+        name: 'getLike',
+        data: {
+          user_id: this.userId
+        }
+      }).then(res => {
+        console.log(res, 'getLike')
+        this.$store.commit('updateGoodsLike', res.result.data[0].goodsLike)
+      })
+      this.$emit('info')
     }
   }
 }

@@ -2,6 +2,9 @@
   "usingComponents": {
     "i-panel": "/static/iview/panel/index",
     "i-input": "/static/iview/input/index",
-    "i-button": "/static/iview/button/index"
+    "i-button": "/static/iview/button/index",
+    "i-radio-group": "/static/iview/radio-group/index",
+    "i-radio": "/static/iview/radio/index"
+    
   }
 }

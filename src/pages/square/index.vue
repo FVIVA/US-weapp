@@ -6,6 +6,7 @@
        <i-icon type="search" size="24" color="#000" @click="searchDynamic" />
     </div>
     <div class="main">
+      <i-divider v-if="blank" content="加载已经完成,没有其他数据"></i-divider>
       <div class="info__item" v-for="(item,index) in dynamicList" :key="item.id">
         <div class="info__item_head">
           <span>
@@ -47,7 +48,8 @@ export default {
     return {
       dynamicList: [],
       sendModal: false,
-      searchKey: ''
+      searchKey: '',
+      blank: false
     }
   },
   methods: {
@@ -70,12 +72,20 @@ export default {
       const dynamicdata = {
         dynamic_content: this.searchKey
       }
+      wx.showLoading({
+        title: '搜索中'
+      })
       wx.cloud.callFunction({
         name: 'searchDynamic',
         data: dynamicdata
       }).then(res => {
-        console.log(res, 'as')
+        wx.hideLoading()
         this.dynamicList = res.result.data.reverse()
+        if (res.result.data.length === 0) {
+          this.blank = true
+        } else {
+          this.blank = false
+        }
       })
     },
     getDynamicList () {
@@ -85,6 +95,11 @@ export default {
       wx.cloud.callFunction({
         name: 'getDynamicList'
       }).then(res => {
+        if (res.result.data.length === 0) {
+          this.blank = true
+        } else {
+          this.blank = false
+        }
         this.dynamicList = res.result.data.reverse()
         this.dynamicList.forEach(v => {
           v.create_time = dateformate(v.create_time)

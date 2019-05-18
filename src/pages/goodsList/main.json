@@ -1,7 +1,9 @@
 {
   "usingComponents": {
     "i-icon": "/static/iview/icon/index",
-    "i-avatar": "/static/iview/avatar/index"
+    "i-avatar": "/static/iview/avatar/index",
+    "i-divider": "/static/iview/divider/index"
+    
   }
 }
 

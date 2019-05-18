@@ -5,6 +5,7 @@
        <i-icon type="search" size="24" color="#000" @click="searchGoods"/>
     </div>
     <div class="main">
+      <i-divider v-if="blank" content="加载已经完成,没有其他数据"></i-divider>
       <div class="more-goods">
       <div class="more-goods__item" v-for="item in moreGoodList" :key="item.id" @click="toGoodsDetail(item._id)">
         <img class="more-goods__item_pic" :src="item.goods_img[0]">
@@ -35,7 +36,8 @@ export default {
     return {
       moreGoodList: [],
       sendModal: false,
-      searchKey: ''
+      searchKey: '',
+      blank: false
     }
   },
   created () {
@@ -46,6 +48,9 @@ export default {
         this.getGoodsList()
         return 0
       }
+      wx.showLoading({
+        title: '搜索中'
+      })
       const goodsdata = {
         goods_name: this.searchKey
       }
@@ -53,13 +58,23 @@ export default {
         name: 'searchGoods',
         data: goodsdata
       }).then(res => {
-        console.log(res, 'as')
+        wx.hideLoading()
         this.moreGoodList = res.result.data
+        if (res.result.data.length === 0) {
+          this.blank = true
+        } else {
+          this.blank = false
+        }
       })
     },
     getGoodsList () {
       wx.cloud.callFunction({ name: 'getGoodsList' }).then(res => {
         this.moreGoodList = shuffle(res.result.data)
+        if (res.result.data.length === 0) {
+          this.blank = true
+        } else {
+          this.blank = false
+        }
       })
     },
     toGoodsDetail (id) {

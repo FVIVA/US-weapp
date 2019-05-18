@@ -18,7 +18,6 @@ exports.main = async (event, context) => {
         goods_img: event.goods_img,
         user_avatar: event.user_avatar,
         create_time: createTime,
-        like_count: 0,
         user_id: event.user_id,
         location: event.location,
         price: Number(event.price),

@@ -3,6 +3,7 @@
     <div class="head">
       <img src="../../../static/images/pesonbg.jpg">
     </div>
+    <div class="admin" @click="toAdmin">管理员入口</div>
     <div class="main">
       <dl class="ub-box z-padding-all-10-px" style="background:#fff">
         <dd class="ub-flex-1 z-font-size-18 z-color-333 ub-box ub-ver-v z-padding-h-10-px">
@@ -16,8 +17,8 @@
         </dd>
       </dl>
       <div class="info" v-if="isLogin">
-        <span v-if="userInfo.isAuthed" class="auth" style="border: 2px #4ddfa9 solid;">已认证</span>
-        <span v-if="!userInfo.isAuthed" class="auth" style="border: 2px #ff3b53 solid;">未认证</span>
+        <span v-if="userInfo.user_type === 1" class="auth" style="border: 2px #4ddfa9 solid;">已认证</span>
+        <span v-if="userInfo.user_type === 0" class="auth" style="border: 2px #ff3b53 solid;">未认证</span>
         <img :src="userInfo.avatar">
         <br>
         <span style="font-size: 28rpx; margin-right:20rpx;">{{userInfo.nickname}}</span>
@@ -67,6 +68,11 @@ export default {
     toEditInfo () {},
     onGetUserInfo (e) {
       const wxInfo = e.mp.detail.userInfo
+      if (!wxInfo.nickName) {
+        return 0
+      }
+      this.sendModal = !this.sendModal
+      // console.log(this.userInfo.nickname)
       if (this.userInfo.nickname) {
         return 0
       }
@@ -82,14 +88,13 @@ export default {
       }).then(res => {
         if (res.result.data.length) {
           console.log('欢迎', res.result.data[0].nickname)
-          console.log(res)
           this.$store.commit('updateIsLogin', true)
           this.$store.commit('updateUser', res.result.data[0])
           console.log(this.userInfo)
         } else {
           console.log('添加新用户')
           const userInfo = {
-            nickname: wxInfo.nickame,
+            nickname: wxInfo.nickName,
             avatar: wxInfo.avatarUrl,
             gender: wxInfo.gender,
             intergral: 100,
@@ -102,11 +107,26 @@ export default {
           this.$store.commit('updateUser', userInfo)
         }
       })
+      wx.cloud.callFunction({
+        name: 'getLike',
+        data: {
+          user_id: this.userId
+        }
+      }).then(res => {
+        console.log(res, 'getLike')
+        this.$store.commit('updateGoodsLike', res.result.data[0].goodsLike)
+      })
+      this.$emit('info')
     },
     exitLogin () {
       this.$store.commit('updateIsLogin', false)
       this.$store.commit('cleanUserInfo')
       console.log(this.isLogin)
+    },
+    toAdmin () {
+      wx.navigateTo({
+        url: '/pages/login/main'
+      })
     }
   }
 }
@@ -164,6 +184,18 @@ export default {
     right: 20rpx;
     top: 20rpx;
   }
+}
+.admin {
+  height: 40rpx;
+  line-height: 40rpx;
+  width: 140rpx;
+  border: 2px #000 solid;
+  position: absolute;
+  right: 20rpx;
+  top: 20rpx;
+  font-size: 24rpx;
+  border-radius: 40rpx;
+  text-align: center;
 }
 </style>
 

@@ -17,7 +17,7 @@
 export default {
   onShow () {
     wx.setNavigationBarTitle({title: '发表动态'})
-    console.log(this.wxInfo)
+    console.log(this.userInfo)
   },
   data () {
     return {
@@ -36,7 +36,7 @@ export default {
     picLength () {
       return this.dynamic.dynamic_img.length
     },
-    wxInfo () {
+    userInfo () {
       return this.$store.state.userInfo
     },
     userId () {
@@ -86,8 +86,8 @@ export default {
       })
     },
     send () {
-      this.dynamic.nickname = this.wxInfo.nickName
-      this.dynamic.avatar = this.wxInfo.avatarUrl
+      this.dynamic.nickname = this.userInfo.nickname
+      this.dynamic.avatar = this.userInfo.avatar
       this.dynamic.user_id = this.userId
       console.log(this.dynamic)
       wx.cloud.callFunction({

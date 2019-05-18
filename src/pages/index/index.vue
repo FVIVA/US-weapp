@@ -13,22 +13,24 @@
         <span>好物换取中</span>
         <span @click="toMore" style="font-size: 24rpx;" >more</span>
       </div>
-      <div class="goods__item" v-for="item in goodList" :key="item.id" @click="toGoodsDetail(item._id)">
+      <div class="goods__item" v-for="item in goodList" :key="item.id">
         <div class="goods__item_head">
           <span @click="toUserDetail(item.user_id)">
             <i-avatar size="default" :src="item.user_avatar" style="margin-right:20rpx;"></i-avatar>{{item.user_name}}
-          </span>s
+          </span>
           <span class="want">我想要</span>
         </div>
-        <div v-if="item.goods_img[0]" class="goods__item_pic">
-          <img :src="item.goods_img[0]">
-          <img :src="item.goods_img[1]">
-        </div>
-        <div class="goods__item_title">
-          {{item.goods_name}}
-        </div>
-        <div class="goods__item_des">
-          {{item.remark}}
+        <div @click="toGoodsDetail(item._id)">
+          <div v-if="item.goods_img[0]" class="goods__item_pic">
+            <img :src="item.goods_img[0]">
+            <img :src="item.goods_img[1]">
+          </div>
+          <div class="goods__item_title">
+            {{item.goods_name}}
+          </div>
+          <div class="goods__item_des">
+            {{item.remark}}
+          </div>
         </div>
         <div class="goods__item_footer">
           <img v-if="!item.isLiked" src="/static/images/xin.png" @click="changeState(item)">
@@ -49,7 +51,7 @@
       </div>
     </div>
     <news-modal v-model="newsShow" :news="currentNews"></news-modal>
-    <send></send>
+    <send @info="getGoodsList"></send>
   </div>
 </template>
 
@@ -77,6 +79,17 @@ export default {
       newsList: []
     }
   },
+  computed: {
+    goodsLike () {
+      return this.$store.state.goodsLike
+    },
+    userId () {
+      return this.$store.state.openId.openId
+    },
+    userInfo () {
+      return this.$store.state.userInfo
+    }
+  },
   methods: {
     dateformate,
     openDetail (news) {
@@ -84,14 +97,75 @@ export default {
       this.currentNews = news
     },
     changeState (goods) {
+      if (!this.userInfo.nickname) {
+        wx.showToast({
+          title: '请先登录',
+          icon: 'none',
+          duration: 3000,
+          complete: () => {
+            wx.navigateTo({
+              url: '/pages/personal/main'
+            })
+          }
+        })
+        return 0
+      }
+      const likearr = [...this.goodsLike]
+      const index = this.goodsLike.indexOf(goods._id)
+      if (index > -1) {
+        likearr.splice(index, 1)
+        goods.like_count -= 1
+      } else {
+        likearr.push(goods._id)
+        goods.like_count += 1
+      }
+      this.$store.commit('updateGoodsLike', likearr)
+      console.log(this.goodsLike, 'like')
       goods.isLiked = !goods.isLiked
+      const data = {
+        _id: goods._id,
+        state: goods.isLiked,
+        goodsLike: this.goodsLike,
+        user_id: this.userId
+      }
+      wx.cloud.callFunction({
+        name: 'changeGoodsLike',
+        data: data
+      })
+      // wx.cloud.callFunction(data)
     },
     toGoodsDetail (id) {
+      if (!this.userInfo.nickname) {
+        wx.showToast({
+          title: '请先登录',
+          icon: 'none',
+          duration: 3000,
+          complete: () => {
+            wx.navigateTo({
+              url: '/pages/personal/main'
+            })
+          }
+        })
+        return 0
+      }
       wx.navigateTo({
         url: `/pages/goodsDetail/main?id=${id}`
       })
     },
     toUserDetail (id) {
+      if (!this.userInfo.nickname) {
+        wx.showToast({
+          title: '请先登录',
+          icon: 'none',
+          duration: 3000,
+          complete: () => {
+            wx.navigateTo({
+              url: '/pages/personal/main'
+            })
+          }
+        })
+        return 0
+      }
       wx.navigateTo({
         url: `/pages/personIndex/main?id=${id}`
       })
@@ -102,10 +176,15 @@ export default {
       })
     },
     getGoodsList () {
+      console.log(this.goodsLike, 'get')
       wx.cloud.callFunction({ name: 'getGoodsList' }).then(res => {
         this.goodList = res.result.data.slice(-5).reverse()
         this.goodList.forEach(v => {
           v.create_time = dateformate(v.create_time)
+          if (this.goodsLike.indexOf(v._id) > -1) {
+            v.isLiked = true
+            // console.log(v._id, this.goodsLike.indexOf(v._id))
+          }
         })
       })
     },

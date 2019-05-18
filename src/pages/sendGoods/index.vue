@@ -67,7 +67,7 @@ export default {
     picLength () {
       return this.fileList.length
     },
-    wxInfo () {
+    userInfo () {
       return this.$store.state.userInfo
     },
     userId () {
@@ -126,7 +126,7 @@ export default {
     },
     send () {
       console.log(this.goods)
-      this.goods.user_avatar = this.wxInfo.avatarUrl
+      this.dynamic.avatar = this.userInfo.avatar
       this.goods.user_id = this.userId
       wx.cloud.callFunction({
         name: 'addGoods',

@@ -13,7 +13,6 @@ exports.main = async (event, context) => {
       user_id: event.user_id
     }).get()
     // return user
-    console.log(user.data)
     if (!user.data.length) {
       await db.collection('user').add({
         data: {
@@ -25,6 +24,13 @@ exports.main = async (event, context) => {
           user_name: '',
           user_type: 0,
           age: 0
+        }
+      })
+      await db.collection('user_like').add({
+        data: {
+          user_id: event.user_id,
+          goodsLike: [],
+          dynamicLike: []
         }
       })
     } else return user

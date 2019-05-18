@@ -47,7 +47,7 @@
 				{
 					"id": 1,
 					"name": "a",
-					"pathName": "pages/data/main",
+					"pathName": "pages/authAdmin/main",
 					"query": "",
 					"scene": null
 				}
