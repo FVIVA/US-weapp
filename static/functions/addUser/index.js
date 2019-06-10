@@ -23,7 +23,8 @@ exports.main = async (event, context) => {
           user_id: event.user_id,
           user_name: '',
           user_type: 0,
-          age: 0
+          age: 0,
+          change_time: 0
         }
       })
       await db.collection('user_like').add({

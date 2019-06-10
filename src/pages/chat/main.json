@@ -1,4 +1,5 @@
 {
+  "enablePullDownRefresh": true,
   "usingComponents": {
     "i-avatar": "/static/iview/avatar/index",
     "i-panel": "/static/iview/panel/index",

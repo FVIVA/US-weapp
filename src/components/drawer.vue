@@ -20,7 +20,7 @@
           <div class="item" style="background: rgba(165, 214, 63, 1)" @click="toNewsAdmin">
             资讯管理
           </div>
-          <div class="index"></div>
+          <div class="index" @click="toIndex"></div>
         </div>
       </view>
     </i-drawer>
@@ -41,7 +41,7 @@ export default {
     },
     toAdsAdmin () {
       wx.navigateTo({
-        url: '/pages/userAdmin/main'
+        url: '/pages/adAdmin/main'
       })
     },
     toAuthAdmin () {
@@ -51,7 +51,7 @@ export default {
     },
     toGoodsAdmin () {
       wx.navigateTo({
-        url: '/pages/userAdmin/main'
+        url: '/pages/goodsAdmin/main'
       })
     },
     toNewsAdmin () {

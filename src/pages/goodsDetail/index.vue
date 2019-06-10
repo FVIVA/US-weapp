@@ -8,9 +8,9 @@
       </block>
     </swiper>
     <div class="user-info">
-      <img :src="userInfo.avatar" @click="toUserDetail(userInfo.user_id)">
+      <img :src="user.avatar" @click="toUserDetail(user.user_id)">
       <br>
-      {{userInfo.nickname}}
+      {{user.nickname}}
     </div>
     <div class="main">
       <div class="goods-info">
@@ -38,17 +38,18 @@
         <span style="color: red;">{{goodsInfo.like_count}}</span>人点赞
       </div>
       <div class="more-goods">
-        <div class="more-goods__title">更多好物待置换  <span @click="toMore" style="font-size: 24rpx;" >more</span></div>
+        <div class="more-goods__title">更多好物待置换<span @click="toMore" style="font-size: 24rpx;" >more</span></div>
         
         <div class="more-goods__item" v-for="item in moreGoodList" :key="item.id">
-          <img class="more-goods__item_pic" :src="item.goods_img[0]" @click="toGoodsDetail(item._id)">
+          <img class="more-goods__item_pic" :src="item.goods_img[0]" @click="toGoodsDetail(item._id)" mode="aspectFill">
           <div class="more-goods__item_title">{{item.goods_name}}</div>
         </div>
       </div>
     </div>
     <div class="want">
-      <i-button style="width: 400rpx" bind:click="handleClick" shape="circle">联系物主</i-button>
-      <i-button style="width: 400rpx;" shape="circle" @click="scanCode">扫码置换</i-button>
+      <i-button i-class="black" style="width: 400rpx;" @click="toChat" shape="circle" type="ghost" >联系物主</i-button>
+      <i-button v-if="goodsInfo.state !== 1" style="width: 400rpx;" shape="circle" @click="scanCode" type="info">扫码置换</i-button>
+      <i-button v-if="goodsInfo.state === 1"  style="width: 400rpx;" shape="circle">已被置换</i-button>
     </div>
   </div>
 </template>
@@ -68,10 +69,15 @@ export default {
   },
   created () {
   },
+  computed: {
+    userInfo () {
+      return this.$store.state.userInfo
+    }
+  },
   data () {
     return {
       goodsId: '',
-      userInfo: {},
+      user: {},
       goodsInfo: {},
       moreGoodList: []
     }
@@ -96,7 +102,7 @@ export default {
           name: 'getOneUser',
           data: userData
         }).then(res => {
-          this.userInfo = res.result.data[0]
+          this.user = res.result.data[0]
         })
       })
     },
@@ -105,10 +111,29 @@ export default {
     },
     handleClick () {},
     scanCode () {
+      const that = this
       wx.scanCode({
         onlyFromCamera: true,
         success (res) {
-          console.log(res)
+          const result = JSON.parse(res.result)
+          const info = {
+            owner: result.user_id,
+            exer: that.userInfo.user_id,
+            price: result.price,
+            goods_id: result.goods_id
+          }
+          console.log(info, 'info')
+          wx.cloud.callFunction({
+            name: 'exchange',
+            data: info
+          }).then(res => {
+            console.log(res)
+            wx.showToast({
+              title: '置换成功',
+              icon: 'success',
+              duration: 2000
+            })
+          })
         }
       })
     },
@@ -134,6 +159,11 @@ export default {
     toMore () {
       wx.navigateTo({
         url: '/pages/goodsList/main'
+      })
+    },
+    toChat () {
+      wx.navigateTo({
+        url: `/pages/chatInfo/main?id=${this.goodsInfo.user_id}`
       })
     }
   }
@@ -252,6 +282,9 @@ export default {
     width: 100rpx;
     display: inline-block;
   }
+}
+.black {
+  background: #000 !important;
 }
 </style>
 

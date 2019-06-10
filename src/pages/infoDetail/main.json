@@ -9,6 +9,7 @@
     "i-toast": "/static/iview/toast/index",
     "i-swipeout": "/static/iview/swipeout/index",
     "i-icon": "/static/iview/icon/index",
-    "i-modal": "/static/iview/modal/index"
+    "i-modal": "/static/iview/modal/index",
+    "i-divider": "/static/iview/divider/index"
   }
 }

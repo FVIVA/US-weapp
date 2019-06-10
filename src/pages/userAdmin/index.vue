@@ -5,6 +5,7 @@
       <i-icon type="search" size="24" color="#000" @click="searchUser" />
     </div>
     <div class="main">
+      <div @click="addModal = true" class="add">新增管理员</div>
       <i-divider v-if="blank" content="加载已经完成,没有其他数据"></i-divider>
       <div v-for="user in userList" class="user-item" :key="user.id">
         <i-card :title="user.nickname" :thumb="user.avatar">
@@ -23,6 +24,12 @@
       </div>
     </div>
     <drawer></drawer>
+    <i-modal title="新增管理员" :visible="addModal" @ok="add" @cancle="addModal = false" show-ok show-cancle>
+        <view class="add-item">
+          <input placeholder="账号" v-model="admin.user" />
+          <input placeholder="密码" v-model="admin.psw"/>
+        </view>
+    </i-modal>
   </div>
 </template>
 <script>
@@ -33,14 +40,15 @@ export default {
   },
   data () {
     return {
-      login: {
-        user: '',
-        psw: ''
-      },
       lock: true,
       searchKey: '',
       userList: [],
-      blank: false
+      blank: false,
+      admin: {
+        user: '',
+        psw: ''
+      },
+      addModal: false
     }
   },
   onShow () {
@@ -84,14 +92,18 @@ export default {
         }
       })
     },
-    toUsersAdmin () {
-      wx.navigateTo({
-        url: '/pages/userAdmin/main'
+    add () {
+      wx.cloud.callFunction({
+        name: 'addAdmin',
+        data: this.admin
+      }).then(res => {
+        wx.showToast({
+          title: '新增成功',
+          icon: 'success',
+          duration: 2000
+        })
       })
-    },
-    toAdsAdmin () {},
-    toGoodsAdmin () {},
-    toNewsAdmin () {}
+    }
   }
 }
 </script>
@@ -127,5 +139,30 @@ export default {
 }
 .user-item {
   margin-bottom: 30rpx;
+}
+.add {
+  width:40%;
+  height: 60rpx;
+  line-height: 60rpx;
+  text-align: center;
+  // position: fixed;
+  // top: 100rpx;
+  // right: 40rpx;
+  margin-left: 400rpx;
+  margin-bottom: 30rpx;
+  background: #000;
+  border-radius: 60rpx;
+  color: #fff;
+  font-size: 24rpx;
+  z-index: 100;
+}
+.add-item {
+  input {
+    border: 2px #000 solid;
+    width: 80%;
+    margin: 60rpx auto;
+    border-radius: 60rpx;
+    font-size: 24rpx;
+  }
 }
 </style>

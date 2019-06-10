@@ -45,6 +45,7 @@ export default {
               wx.navigateTo({
                 url: '/pages/adminIndex/main'
               })
+              this.$store.commit('updateAdminInfo', true)
             }
           })
         } else {

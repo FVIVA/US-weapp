@@ -1,6 +1,5 @@
 <template>
   <div class="enter">
-    <img class="bg" src="../../../static/images/pesonbg.jpg">
     <swiper class="swiper" autoplay="true" indicator-dots="true" interval="5000" duration="1000">
       <block v-for="(item, index) in adList" :index="index" :key="item.id">
           <swiper-item>
@@ -22,8 +21,8 @@
         </div>
         <div @click="toGoodsDetail(item._id)">
           <div v-if="item.goods_img[0]" class="goods__item_pic">
-            <img :src="item.goods_img[0]">
-            <img :src="item.goods_img[1]">
+            <img :src="item.goods_img[0]" mode="aspectFill">
+            <img :src="item.goods_img[1]" mode="aspectFill">
           </div>
           <div class="goods__item_title">
             {{item.goods_name}}
@@ -33,8 +32,8 @@
           </div>
         </div>
         <div class="goods__item_footer">
-          <img v-if="!item.isLiked" src="/static/images/xin.png" @click="changeState(item)">
-          <img v-else src="/static/images/xin2.png" @click="changeState(item)">
+          <img v-if="!item.isLiked" src="/static/images/xin.png" @click="changeState(item)" mode="aspectFill">
+          <img v-else src="/static/images/xin2.png" @click="changeState(item)" mode="aspectFill">
           <span>{{item.like_count}}</span>
         </div>
       </div>
@@ -42,7 +41,7 @@
     <div class="title">校园资讯</div>
     <div class="news">
       <div class="news__item" v-for="item in newsList" :key="item.id"  @click="openDetail(item)">
-        <img :src="item.news_img">
+        <img :src="item.news_img" mode="aspectFill">
         <div class="news__item_info">
           <div class="news__item_info_title">{{item.news_title}}</div>
           <div class="news__item_info_des">{{item.news_content}}</div>
@@ -226,10 +225,14 @@ export default {
   // max-height: 300vh;
   // overflow: hidden;
   margin-top: 30rpx;
+  background: #fff;
   &__item {
     border: none;
     background: #fff;
     padding: 20rpx;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    width: 85%;
+    margin: 0 auto;
     margin-bottom: 20rpx;
     &_head {
       height: 80rpx;
@@ -239,8 +242,7 @@ export default {
       font-size: 30rpx;
       .want {
         display: inline-block;
-        border: #8adeab 2rpx solid;
-        color: #8adeab;
+        background: #ffda00;
         font-size: 14px;
         border-radius: 30rpx;
         height: 60rpx;

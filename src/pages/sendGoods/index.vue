@@ -1,14 +1,10 @@
 <template>
   <div class="info">
-    <img class="bg" src="../../../static/images/pesonbg.jpg">
     <div class="info_item">
       <i-panel hide-border>
-        <input  placeholder="旧物名字..." v-model="goods.goods_name">
-      </i-panel>
-    </div>
-    <div class="info_item">
-      <i-panel hide-border>
-        <input type="number"  placeholder="添加价格" v-model="goods.price">
+        <view>
+          <textarea class="info_txt" placeholder="写下你与旧物的故事..." v-model="goods.remark"></textarea>
+        </view>
       </i-panel>
     </div>
     <div class="info_item">
@@ -16,7 +12,7 @@
         <view style="padding: 10rpx;">
           <div class="info_img">
             <div class="info_img_item" v-for="item in fileList" :key="item.id">
-              <img :src="item">
+              <img :src="item" mode="aspectFill">
             </div>
             <div @click="chooseImg" class="info_img_item" v-if="showAdd">
               <img class="add-img" src="../../../static/images/add.png">
@@ -25,22 +21,24 @@
         </view>
       </i-panel>
     </div>
-    <div class="info_item">
+    <div class="info_item" style="border-bottom: rgb(247,247,247) 1rpx solid">
       <i-panel hide-border>
-        <view style="padding: 10rpx;">
-          <textarea class="info_txt" placeholder="写下你与旧物的故事..." v-model="goods.remark"></textarea>
-        </view>
+        <span>添加标题</span><input  placeholder="写下你的标题吧..." v-model="goods.goods_name">
+      </i-panel>
+    </div>
+    <div class="info_item" style="border-bottom: rgb(247,247,247) 1rpx solid">
+      <i-panel hide-border>
+        <span>添加价格</span><input type="number"  placeholder="你的旧物价值多少U币..." v-model="goods.price">
       </i-panel>
     </div>
     <div class="info_item">
       <i-panel hide-border>
-        <view style="padding: 10rpx;">
-          <img style="width:50rpx; height:50rpx;" src="../../../static/images/weizhi.png" @click="getLocation">
-          <input style="display: inline-block; width:80%;" v-model="goods.location" placeholder="你的位置">
-        </view>
+        <i-cell-group>
+          <i-cell :title="goods.location" is-link @click.stop="getLocation"><i-icon type="coordinates" slot="icon"/></i-cell>
+        </i-cell-group>
       </i-panel>
     </div>
-    <button style="background: #fff;" @click="send">发布</button>
+   <div class="send" @click="send">发布</div>
   </div>
 </template>
 <script>
@@ -54,8 +52,8 @@ export default {
         goods_img: [],
         user_avatar: '',
         user_id: this.userId,
-        location: '',
-        price: 0,
+        location: '你在哪里?',
+        price: '',
         remark: '',
         goods_name: ''
       },
@@ -125,12 +123,24 @@ export default {
       })
     },
     send () {
-      console.log(this.goods)
-      this.dynamic.avatar = this.userInfo.avatar
-      this.goods.user_id = this.userId
+      if (!this.goods.goods_name) {
+        wx.showToast({
+          title: '请填写信息',
+          icon: 'loading',
+          duration: 3000
+        })
+        return 0
+      }
+      let data = {}
+      data = {...this.goods}
+      data.user_avatar = this.userInfo.avatar
+      data.user_id = this.userId
+      if (this.goods.location === '你在哪里?') {
+        data.location = ''
+      }
       wx.cloud.callFunction({
         name: 'addGoods',
-        data: this.goods
+        data: data
       }).then(res => {
         wx.showToast({
           title: '发布成功',
@@ -145,11 +155,13 @@ export default {
                 goods_img: [],
                 user_avatar: '',
                 user_id: '',
-                location: '',
+                location: '你在哪里?',
                 price: 0,
                 remark: '',
                 goods_name: ''
               }
+              this.fileList.length = []
+              this.showAdd = true
             }, 2000)
           }
         })
@@ -159,28 +171,36 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-.bg {
-  width:100vw;
-  height: 100vh;
-  position: fixed;
-  top: 0;
-  z-index: -99;
-}
 .info {
-  padding: 20rpx;
-  background: rgba(#f8f8f9, 0.8);
-  height: 100vh;
+  padding: 40rpx;
+  // background: rgba(#f8f8f9, 0.8);
   &_item {
     margin-bottom: 20rpx;
     input {
       font-size: 28rpx;
       padding: 0 20rpx;
+      line-height: 80rpx;
+      height: 80rpx;
+      display: inline-block;
+      width: 70%;
+    }
+    span {
+      display: inline-block;
+      line-height: 80rpx;
+      height: 80rpx;
+      vertical-align: top;
     }
   }
   &_txt {
     min-height: 400rpx;
     font-size: 28rpx;
     color: #495060;
+    background: rgb(247,247,247);
+    border-radius: 5px;
+    padding: 30rpx;
+    margin: 0 auto;
+    display: block;
+    width: 90%;
   }
   &_img {
     // height: 600rpx;
@@ -210,5 +230,16 @@ export default {
       }
     }
   }
+}
+.send {
+  width: 100%;
+  cursor: pointer;
+  height: 80rpx;
+  line-height: 80rpx;
+  border-radius: 60rpx;
+  margin: 0 auto;
+  background: #ffda00;
+  text-align: center;
+  margin-top: 100rpx;
 }
 </style>

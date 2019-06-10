@@ -1,20 +1,24 @@
 <template>
   <div class="box">
-    <img class="bg" src="../../../static/images/pesonbg.jpg">
+    <h2 style="margin-left:20rpx">学生信息认证</h2>
     <div class="main">
-      <i-panel title="姓名">
+      <div class="info-item">
+        <span>姓名</span>
         <input v-model="auth.user_name" placeholder="请输入姓名" />
-      </i-panel>
-      <i-panel title="学校">
+      </div>
+      <div class="info-item">
+        <span>学校</span>
         <input v-model="auth.school" placeholder="请输入学校" />
-      </i-panel>
-      <i-panel title="学号">
-        <input v-model="auth.study_num" type="number" placeholder="请输入学号" />
-      </i-panel>
-      <i-panel title="班级号">
-        <input v-model="auth.class_num" type="number" placeholder="请输入班级号" />
-      </i-panel>
-      <i-button class="sb-button" type="warning" @click="toEditInfo">去认证</i-button>
+      </div>
+      <div class="info-item">
+        <span>学号</span>
+        <input v-model="auth.study_num" placeholder="请输入学号" />
+      </div>
+      <div class="info-item">
+        <span>班级号</span>
+        <input v-model="auth.class_num" placeholder="请输入班级号" />
+      </div>
+      <div class="sb-button" type="warning" @click="toEditInfo">去认证</div>
     </div>
     </div>
   </div>
@@ -83,7 +87,7 @@ export default {
   width: 90%;
   height: 80vh;
   position: absolute;
-  top: 0;
+  top: 100rpx;
   left: 0;
   right: 0;
   margin: auto;
@@ -97,9 +101,21 @@ export default {
   }
 }
 .sb-button {
-  width: 90%;
-  position: fixed;
-  bottom: 100rpx;
+  width: 100%;
+  cursor: pointer;
+  height: 80rpx;
+  line-height: 80rpx;
+  border-radius: 60rpx;
+  margin: 0 auto;
+  background: #ffda00;
+  text-align: center;
+  margin-top: 200rpx;
+}
+.info-item {
+  span {
+    font-size: 24rpx;
+    color: #888;
+  }
 }
 </style>
 

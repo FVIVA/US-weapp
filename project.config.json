@@ -47,7 +47,7 @@
 				{
 					"id": 1,
 					"name": "a",
-					"pathName": "pages/authAdmin/main",
+					"pathName": "pages/chatInfo/main",
 					"query": "",
 					"scene": null
 				}

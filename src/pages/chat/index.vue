@@ -1,8 +1,5 @@
 <template>
   <div class="box">
-    <div class="head">
-      <img src="../../../static/images/pesonbg.jpg">
-    </div>
     <div class="main">
       <dl class="ub-box z-padding-all-10-px" style="background:#fff">
         <dd class="ub-flex-1 z-font-size-18 z-color-333 ub-box ub-ver-v z-padding-h-10-px">
@@ -15,73 +12,53 @@
           </ul>
         </dd>
       </dl>
-      <div>
-        <i-swipeout v-if="isLogin" class="info-item" v-for="item in infoList" :key="item.id" :unclosable="true">
-          <view slot="content" class="info-item_content">
-            <img :src="item.send_avatar">
-            <span class="message">{{item.messageList[0].content}}</span>
-            <span class="time">{{item.messageList[0].time}}</span>
-          </view>
-          <view slot="button" >
-            <div style="background: #ed3f14;" class="info-item-bt" @click="delInfo(item._id)">删除</div>
-          </view>
+      <div style="border-bottom: 1rpx rgb(249,249,249) solid;" v-if="isLogin" v-for="item in infoList" :key="item.id">
+        <i-swipeout  class="info-item"  :unclosable="true">
+            <view slot="content" class="info-item_content" @click="toChat(item.sender)">
+              <img :src="item.sender_avatar">
+              <span class="message">{{item.messageList[item.messageList.length-1].content}}</span>
+              <span class="time">{{item.messageList[item.messageList.length-1].time}}</span>
+            </view>
+            <view slot="button" >
+              <div style="background: #ed3f14;" class="info-item-bt" @click="delInfo(item)">删除</div>
+            </view>
         </i-swipeout>
       </div>
-      
-    </div>
+      <div class="blank" v-show="blank&&isLogin">
+        还没有和任何人聊天哦..<br>
+        快去寻找新朋友吧<br>
+        </div>
     <send></send>
+    </div>
   </div>
 </template>
 
 <script>
 import send from '@/components/send'
+import {dateformate} from '@/utils/common'
 export default {
   onShow () {
     wx.setNavigationBarTitle({title: '消息列表'})
+    if (this.isLogin) {
+      this.getChatList()
+    }
+  },
+  onHide () {
+    clearInterval(this.timer)
+    this.timer = null
+  },
+  onPullDownRefresh () {
+    console.log('下拉')
+    this.getChatList()
   },
   components: {
     send
   },
   data () {
     return {
-      infoList: [
-        {
-          send_avatar: 'https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=1705456338,1503933498&fm=27&gp=0.jpg',
-          messageList: [
-            {
-              content: '你好你好你好你好你好你好你好你好你好你好',
-              time: '2018年3月4日 23:33:02'
-            }
-          ]
-        },
-        {
-          send_avatar: 'https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=1705456338,1503933498&fm=27&gp=0.jpg',
-          messageList: [
-            {
-              content: '你好你好你好你好你好你好你好你好你好你好',
-              time: '2018年3月4日 23:33:02'
-            }
-          ]
-        },
-        {
-          send_avatar: 'https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=1705456338,1503933498&fm=27&gp=0.jpg',
-          messageList: [
-            {
-              content: '你好你好你好你好你好你好你好你好你好你好',
-              time: '2018年3月4日 23:33:02'
-            }
-          ]
-        },
-        {
-          send_avatar: 'https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=1705456338,1503933498&fm=27&gp=0.jpg',
-          messageList: [
-            {
-              content: '你好你好你好你好你好你好你好你好你好你好',
-              time: '2018年3月4日 23:33:02'
-            }
-          ]
-        }
-      ]
+      infoList: [],
+      timer: null,
+      blank: false
     }
   },
   computed: {
@@ -96,8 +73,14 @@ export default {
     }
   },
   methods: {
-    delInfo () {
-
+    delInfo (item) {
+      console.log(this.infoList.indexOf(item))
+      this.infoList.splice(this.infoList.indexOf(item), 1)
+    },
+    toChat (id) {
+      wx.navigateTo({
+        url: `/pages/chatInfo/main?id=${id}`
+      })
     },
     onGetUserInfo (e) {
       const wxInfo = e.mp.detail.userInfo
@@ -150,6 +133,66 @@ export default {
         this.$store.commit('updateGoodsLike', res.result.data[0].goodsLike)
       })
       this.$emit('info')
+      this.getChatList()
+    },
+    getChatList () {
+      let result = []
+      wx.cloud.callFunction({
+        name: 'getChatList',
+        data: {
+          user_id: this.userId
+        }
+      }).then(res => {
+        result = res.result.data
+        wx.stopPullDownRefresh()
+        let map = {}
+        let dest = []
+        result.forEach(info => {
+          info.time = dateformate(info.time)
+          if (info.user1 !== this.userInfo.user_id) {
+            if (!map[info.user1]) {
+              dest.push({
+                sender: info.user1,
+                sender_avatar: info.user1_avatar,
+                messageList: [info]
+              })
+              map[info.user1] = info
+            } else {
+              dest.forEach(v => {
+                if (v.sender === info.user1) {
+                  v.messageList.push(info)
+                }
+              })
+            }
+          } else {
+            if (!map[info.user2]) {
+              dest.push({
+                sender: info.user2,
+                sender_avatar: info.user2_avatar,
+                messageList: [info]
+              })
+              map[info.user2] = info
+            } else {
+              dest.forEach(v => {
+                if (v.sender === info.user2) {
+                  v.messageList.push(info)
+                }
+              })
+            }
+          }
+        })
+        this.infoList = dest
+        if (!this.infoList.length) {
+          this.blank = true
+        } else {
+          this.blank = false
+        }
+      })
+    },
+    timingChat () {
+      this.timer = setInterval(() => {
+        this.getChatList()
+      }, 1000)
     }
   }
 }
@@ -169,10 +212,10 @@ export default {
 }
 .loginBtn {
   font-size: 14px;
-  color: #fff;
   padding: 0px 20px;
   margin-left: 10px;
-  background: #ff5722;
+  background: #ffda00;
+  margin-top: 400rpx;
 }
 .main {
   width: 90%;
@@ -191,6 +234,7 @@ export default {
   height: 100rpx;
   line-height: 100rpx;
   width: 100%;
+  
   &_content {
     height: 100%;
     // line-height: 120rpx;
@@ -198,6 +242,7 @@ export default {
   img {
     width: 100rpx;
     height: 100rpx;
+    border-radius: 100%;
   }
   &-bt {
     width: 100%;
@@ -226,5 +271,12 @@ export default {
     float: right;
     text-align: right;
   }
+}
+.blank {
+  height: 100vh;
+  width: 100vw;
+  text-align: center;
+  font-size: 24rpx;
+  color: #777;
 }
 </style>

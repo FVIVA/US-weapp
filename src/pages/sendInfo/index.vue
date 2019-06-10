@@ -4,13 +4,16 @@
     <textarea class="info_txt" placeholder="这一刻的想法..." v-model="dynamic.dynamic_content"></textarea>
     <div class="info_img">
       <div class="info_img_item" v-for="item in fileList" :key="item.id">
-        <img :src="item">
+        <img :src="item" mode="aspectFill">
       </div>
       <div @click="chooseImg" class="info_img_item" v-if="showAdd">
         <img class="add-img" src="../../../static/images/add.png">
       </div>
     </div>
-    <button @click="send">发布</button>
+    <i-cell-group>
+      <i-cell :title="dynamic.location" is-link @click.stop="getLocation"><i-icon type="coordinates" slot="icon"/></i-cell>
+    </i-cell-group>
+    <div class="send" @click="send">发布</div>
   </div>
 </template>
 <script>
@@ -27,9 +30,11 @@ export default {
         dynamic_img: [],
         nickname: '',
         avatar: '',
-        user_id: this.userId
+        user_id: this.userId,
+        location: '你在哪里？'
       },
       fileList: []
+
     }
   },
   computed: {
@@ -85,14 +90,34 @@ export default {
         }
       })
     },
+    getLocation () {
+      wx.chooseLocation({
+        success: res => {
+          // console.log(res)
+          this.dynamic.location = res.address
+        }
+      })
+    },
     send () {
-      this.dynamic.nickname = this.userInfo.nickname
-      this.dynamic.avatar = this.userInfo.avatar
-      this.dynamic.user_id = this.userId
-      console.log(this.dynamic)
+      if (!this.dynamic.dynamic_content && !this.dynamic.dynamic_img.length) {
+        wx.showToast({
+          title: '请填写信息',
+          icon: 'loading',
+          duration: 3000
+        })
+        return 0
+      }
+      let data = {}
+      data = {...this.dynamic}
+      data.nickname = this.userInfo.nickname
+      data.avatar = this.userInfo.avatar
+      data.user_id = this.userId
+      if (this.dynamic.location === '你在哪里?') {
+        data.location = ''
+      }
       wx.cloud.callFunction({
         name: 'addDynamic',
-        data: this.dynamic
+        data: data
       }).then(res => {
         wx.showToast({
           title: '发布成功',
@@ -120,15 +145,20 @@ export default {
 </script>
 <style lang="scss" scoped>
 .info {
-  padding: 20rpx;
+  padding: 40rpx;
   padding-left: 25rpx;
   &_txt {
-    min-height: 400rpx;
+    min-height: 700rpx;
     font-size: 28rpx;
     color: #495060;
+    background: rgb(247,247,247);
+    border-radius: 5px;
+    padding: 30rpx;
+    margin: 0 auto;
+    display: block;
+    margin-bottom: 40rpx;
   }
   &_img {
-    height: 600rpx;
     &_item {
       height: 220rpx;
       width: 220rpx;
@@ -136,11 +166,14 @@ export default {
       border-radius: 5px;
       position: relative;
       display: inline-block;
-      margin: 0 5rpx;
+      margin: 0 40rpx 20rpx 20rpx;
+      vertical-align: top;
+
       img {
         width: 100%;
         height: 100%;
         border-radius: 5px;
+        vertical-align: top;
       }
       .add-img{
         width: 100rpx;
@@ -154,5 +187,16 @@ export default {
       }
     }
   }
+}
+.send {
+  width: 100%;
+  cursor: pointer;
+  height: 80rpx;
+  line-height: 80rpx;
+  border-radius: 60rpx;
+  margin: 0 auto;
+  background: #ffda00;
+  text-align: center;
+  margin-top: 100rpx;
 }
 </style>

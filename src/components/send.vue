@@ -121,7 +121,7 @@ export default {
       width: 80rpx;
       height: 80rpx;
       border-radius: 50%;
-      background: #4ddfa9;
+      background: #ffda00;
       text-align: center;
       line-height: 80rpx;
       padding: 10rpx;
@@ -138,7 +138,7 @@ export default {
       h4{
         height: 30rpx;
         line-height: 30rpx;
-        color: #fff;
+        color: #222;
         font-size: 22rpx;
         margin-top: -20rpx;
       }

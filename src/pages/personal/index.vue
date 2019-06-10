@@ -1,7 +1,7 @@
 <template>
   <div class="box">
-    <div class="head">
-      <img src="../../../static/images/pesonbg.jpg">
+    <div class="head" v-if="isLogin">
+      <img src="../../../static/images/perbg.png">
     </div>
     <div class="admin" @click="toAdmin">管理员入口</div>
     <div class="main">
@@ -24,15 +24,16 @@
         <span style="font-size: 28rpx; margin-right:20rpx;">{{userInfo.nickname}}</span>
         <br>
         <span style="font-size:24rpx; color:#aaa;">
-          {{userInfo.school || '-'}} | 交换{{userInfo.changeCount}}次 | {{userInfo.age}} | {{userInfo.gender}}
+          {{userInfo.school || '-'}} | 交换{{userInfo.change_time}}次 | {{userInfo.age}} | {{userInfo.gender}}
         </span>
       </div>
       <i-cell-group v-if="isLogin">
-        <i-cell title="我的动态" is-link url="/pages/infoDetail/main"><i-icon type="camera" slot="icon" /></i-cell>
-        <i-cell title="我的物品" is-link url="/pages/myGoods/main"><i-icon type="commodity" slot="icon" /></i-cell>
-        <i-cell title="学生认证" is-link url="/pages/auth/main"><i-icon type="addressbook" slot="icon" /></i-cell>
-        <i-cell title="修改资料" is-link url="/pages/data/main"><i-icon type="editor" slot="icon" /></i-cell>
-        <i-cell title="退出登录" @click.stop="exitLogin()"><i-icon type="undo" slot="icon"/></i-cell>
+        <i-cell title="我的动态" is-link url="/pages/infoDetail/main"><i-icon type="camera" slot="icon" color="#ffda00" /></i-cell>
+        <i-cell title="我的物品" is-link url="/pages/myGoods/main"><i-icon type="commodity" slot="icon" color="#ffda00" /></i-cell>
+        <i-cell title="学生认证" is-link url="/pages/auth/main"><i-icon type="addressbook" slot="icon" color="#ffda00" /></i-cell>
+        <i-cell title="修改资料" is-link url="/pages/data/main"><i-icon type="editor" slot="icon" color="#ffda00" /></i-cell>
+        <i-cell title="我的积分"><i-icon type="integral" slot="icon" color="#ffda00"/>{{userInfo.intergral}}</i-cell>
+        <i-cell title="退出登录" @click.stop="exitLogin()"><i-icon type="undo" slot="icon" color="#ffda00"/></i-cell>
       </i-cell-group>
     </div>
     <send></send>
@@ -44,6 +45,9 @@ import send from '@/components/send'
 export default {
   onShow () {
     wx.setNavigationBarTitle({title: '我的'})
+    if (this.isLogin) {
+      this.getUserInfo()
+    }
   },
   components: {
     send
@@ -56,6 +60,9 @@ export default {
   computed: {
     isLogin () {
       return this.$store.state.isLogin
+    },
+    isAdmin () {
+      return this.$store.state.adminIs
     },
     userInfo () {
       return this.$store.state.userInfo
@@ -118,15 +125,32 @@ export default {
       })
       this.$emit('info')
     },
+    getUserInfo () {
+      const userData = {
+        user_id: this.userId
+      }
+      wx.cloud.callFunction({
+        name: 'getOneUser',
+        data: userData
+      }).then(res => {
+        this.$store.commit('updateUser', res.result.data[0])
+      })
+    },
     exitLogin () {
       this.$store.commit('updateIsLogin', false)
       this.$store.commit('cleanUserInfo')
       console.log(this.isLogin)
     },
     toAdmin () {
-      wx.navigateTo({
-        url: '/pages/login/main'
-      })
+      if (this.isAdmin) {
+        wx.navigateTo({
+          url: '/pages/adminIndex/main'
+        })
+      } else {
+        wx.navigateTo({
+          url: '/pages/login/main'
+        })
+      }
     }
   }
 }
@@ -138,7 +162,7 @@ export default {
 }
 .head {
   width:100vw;
-  height: 100vh;
+  height: 30vh;
   img {
     height: 100%;
     width: 100%;
@@ -146,27 +170,28 @@ export default {
 }
 .loginBtn {
   font-size: 14px;
-  color: #fff;
   padding: 0px 20px;
   margin-left: 10px;
-  background: #ff5722;
+  background: #ffda00;
+  margin-top: 400rpx;
 }
 .main {
   width: 90%;
   height: auto;
   position: absolute;
-  top: 120rpx;
+  top: 150rpx;
   left: 0;
   right: 0;
   margin: auto;
-  // background: rgba(#fff,0.8);
 }
 .info {
   text-align: center;
   background: rgba(#fff,0.8);
   margin-bottom: 20rpx;
-  padding: 20rpx;
+  padding: 40rpx;
   position: relative;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
   img {
     width: 150rpx;
     height: 150rpx;
@@ -174,7 +199,6 @@ export default {
   }
   .auth {
     display: inline-block;
-    
     height: 25rpx;
     line-height: 25rpx;
     font-size: 20rpx;

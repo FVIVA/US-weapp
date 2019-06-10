@@ -1,20 +1,18 @@
 <template>
   <div class="box">
-    <div class="head">
-      <img src="../../../static/images/pesonbg.jpg">
-    </div>
     <div class="main">
-      <div class="info">
+      <!-- <div class="info">
         <img :src="userInfo.avatar">
         <br>
         <span style="font-size: 28rpx; margin-right:20rpx;">{{userInfo.nickname}}</span>
         <br>
         <span style="font-size:24rpx; color:#aaa;">
-          {{userInfo.school || '-'}} | 交换{{userInfo.changeCount}}次 | {{userInfo.age}} | {{userInfo.gender}}
+          {{userInfo.school || '-'}} | 交换{{userInfo.change_time}}次 | {{userInfo.age}} | {{userInfo.gender}}
         </span>
-      </div>
+      </div> -->
+      <i-divider v-if="blank" content="加载已经完成,没有其他数据"></i-divider>
       <div class="dynamic">
-        <i-swipeout class="dynamic_item" v-for="(item,index) in dynamicList" :key="item.id" :unclosable="true">
+        <i-swipeout i-class="dynamic_item" v-for="(item,index) in dynamicList" :key="item.id" :unclosable="true">
           <i-row slot="content">
             <i-col span="2"><span  style="font-size:30rpx;">{{item.create_time_day}}</span></i-col>
             <i-col span="2"><span style="font-size:22rpx; text-align: right;">{{item.create_time_month}}月</span></i-col>
@@ -30,7 +28,7 @@
       </div>
     </div>
     <send></send>
-    <i-modal title="删除确认" :visible="delModal" @click="delDynamic" @canle="delModal" show-ok show-cancle>
+    <i-modal title="删除确认" :visible="delModal" @ok="delDynamic" @cancle="delModal = false" show-ok show-cancle>
         <view>删除后无法恢复哦</view>
     </i-modal>
   </div>
@@ -40,7 +38,7 @@
 import send from '@/components/send'
 export default {
   onShow () {
-    wx.setNavigationBarTitle({title: '我的'})
+    wx.setNavigationBarTitle({title: '动态'})
     this.getDynamicList()
   },
   components: {
@@ -49,7 +47,6 @@ export default {
   data () {
     return {
       sendModal: false,
-      userInfo: {},
       dynamicList: [],
       delModal: false,
       currentDynamicId: ''
@@ -132,11 +129,7 @@ export default {
 .main {
   width: 90%;
   height: auto;
-  position: absolute;
-  top: 120rpx;
-  left: 0;
-  right: 0;
-  margin: auto;
+  margin: 40rpx auto;
   // background: rgba(#fff,0.8);
 }
 .info {
@@ -170,6 +163,7 @@ export default {
     background: transparent;
     width: 150rpx;
     height: 350rpx;
+    border: none;
     &-bt {
       width: 300rpx;
       height: 100%;
@@ -181,6 +175,7 @@ export default {
   &_img {
     width:200rpx;
     height: 200rpx;
+    border-radius: 6px;
   }
   &_content {
     font-size: 26rpx;
@@ -190,4 +185,9 @@ export default {
 }
 </style>
 
+<style lang="scss">
+.dynamic_item .i-swipeout-wrap {
+  border: none;
+}
+</style>
 

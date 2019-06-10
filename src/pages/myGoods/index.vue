@@ -1,8 +1,5 @@
 <template>
   <div class="box">
-    <div class="head">
-      <img src="../../../static/images/pesonbg.jpg">
-    </div>
     <div class="main">
       <div class="info">
         <img :src="userInfo.avatar">
@@ -10,28 +7,29 @@
         <span style="font-size: 28rpx; margin-right:20rpx;">{{userInfo.nickname}}</span>
         <br>
         <span style="font-size:24rpx; color:#aaa;">
-          {{userInfo.school || '-'}} | 交换{{userInfo.changeCount}}次 | {{userInfo.age}} | {{userInfo.gender}}
+          {{userInfo.school || '-'}} | 交换{{userInfo.change_time}}次 | {{userInfo.age}} | {{userInfo.gender}}
         </span>
       </div>
+     <i-divider v-if="blank" content="加载已经完成,没有其他数据"></i-divider>
      <i-swipeout class="goods-item" v-for="item in goodsList" :key="item.id" :unclosable="true">
-        <view slot="content" @click="toQrcode(item.qrcode)">
-          <img class="goods_img" :src="item.goods_img[0]">
+        <view slot="content" @click="toQrcode(item)">
+          <img class="goods_img" :src="item.goods_img[0]" mode="aspectFill">
             <span class="goods_name">{{item.goods_name}}</span>
             <span class="goods_price">{{item.price}}</span>
         </view>
         <view slot="button" >
-            <div style="background: #ccc;" class="goods-item-bt" @click="editGoods(item._id)">编辑</div>
-            <div style="background: #ed3f14;" class="goods-item-bt" @click="openDel(item._id)">删除</div>
+            <div style="color: #ccc;" class="goods-item-bt" @click="editGoods(item._id)">编辑</div>
+            <div style="color: #ed3f14;" class="goods-item-bt" @click="openDel(item._id)">删除</div>
         </view>
     </i-swipeout>
     </div>
-    <i-modal title="删除确认" :visible="delModal" @click="delGoods" @canle="delModal" show-ok show-cancle>
+    <i-modal title="删除确认" :visible="delModal" @ok="delGoods" @cancle="delModal = false" show-ok show-cancle>
         <view>删除后无法恢复哦</view>
     </i-modal>
     <send></send>
     <div class="qrcode_modal" catchtouchmove="ture" v-if="qrcodeModal" @click="qrcodeModal = false">
       <div class="qrcode">
-        <img :src="qrcode">
+        <canvas style="width: 200px; height: 200px;" canvas-id="myQrcode"></canvas>
       </div>
     </div>
   </div>
@@ -39,6 +37,7 @@
 
 <script>
 import send from '@/components/send'
+import drawQrcode from 'weapp-qrcode'
 export default {
   onShow () {
     wx.setNavigationBarTitle({title: '我的'})
@@ -49,7 +48,6 @@ export default {
   },
   data () {
     return {
-      userInfo: {},
       sendModal: false,
       delModal: false,
       currentGoods: {},
@@ -66,7 +64,9 @@ export default {
       goodsList: [],
       qrcode: '',
       qrcodeModal: false,
-      currentGoodsId: ''
+      currentGoodsId: '',
+      blank: false,
+      drawQrcode
     }
   },
   computed: {
@@ -87,6 +87,11 @@ export default {
         data: goodData
       }).then(res => {
         this.goodsList = res.result.data
+        if (this.goodsList.length === 0) {
+          this.blank = true
+        } else {
+          this.blank = false
+        }
       })
     },
     editGoods (id) {
@@ -116,9 +121,27 @@ export default {
         this.getGoodsList()
       })
     },
-    toQrcode (qc) {
-      this.qrcode = qc
+    toQrcode (goods) {
+      if (goods.state === 1) {
+        wx.showToast({
+          title: '已被置换',
+          icon: 'none',
+          duration: 3000
+        })
+        return 0
+      }
+      this.qrcode = {
+        user_id: goods.user_id,
+        goods_id: goods._id,
+        price: goods.price
+      }
       this.qrcodeModal = true
+      this.drawQrcode({
+        width: 200,
+        height: 200,
+        canvasId: 'myQrcode',
+        text: JSON.stringify(this.qrcode)
+      })
     }
   }
 }
@@ -176,8 +199,8 @@ export default {
   resize: both;
   &-bt {
     width: 150rpx;
-    height: 300rpx;
-    line-height: 300rpx;
+    height: 350rpx;
+    line-height: 320rpx;
     display: inline-block;
     text-align: center;
     color: #fff;
@@ -202,9 +225,10 @@ export default {
     -webkit-animation-duration: 0.5s; /*动画持续时间*/
     -webkit-animation-iteration-count: 1; /*动画次数*/
     -webkit-animation-delay: 0s; /*延迟时间*/
-    img {
+    canvas {
       width: 400rpx;
       height: 400rpx;
+      margin: 0 auto;
       margin-top: 50%;
     }
   }

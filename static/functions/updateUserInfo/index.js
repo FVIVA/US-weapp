@@ -15,7 +15,8 @@ exports.main = async (event, context) => {
       data: {
         age: event.age,
         nickname: event.nickname,
-        gender: event.gender
+        gender: event.gender,
+        avatar: event.avatar
       }
     })
   } catch (e) {

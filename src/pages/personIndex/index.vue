@@ -1,15 +1,15 @@
 <template>
   <div class="box">
     <!-- <div class="head">
-      <img src="../../../static/images/pesonbg.jpg">
+      <img src="../../../static/images/perbg.png">
     </div> -->
     <div class="info">
       <img :src="userInfo.avatar">
       <br>
       <span style="font-size: 28rpx; margin-right:20rpx;">{{userInfo.nickname}}</span>
       <br>
-      <span v-if="userInfo.user_type === 0" class="auth" style="border: 2px #4ddfa9 solid;">已认证</span>
-      <span v-if="!userInfo.user_type === 1" class="auth" style="border: 2px #ff3b53 solid;">未认证</span>
+      <span v-if="userInfo.user_type === 1" class="auth" style="border: 2px #4ddfa9 solid;">已认证</span>
+      <span v-if="!userInfo.user_type === 0" class="auth" style="border: 2px #ff3b53 solid;">未认证</span>
     </div>
     <div class="main">
       <i-tabs :current="currentTab" @change="tabChange" color="#444444">
@@ -18,12 +18,12 @@
         <i-tab key="detail" title="详细信息"></i-tab>
       </i-tabs>
       <div v-if="currentTab === 'dynamic'" class="tabbox dynamic">
-        <img v-for="(item,index) in dynamicList" :src="item.dynamic_img[0]" :key="item.id" @click="previewDynamic(item.dynamic_img[0], index)">
+        <img v-for="(item,index) in dynamicList" :src="item.dynamic_img[0]" :key="item.id" @click="previewDynamic(item.dynamic_img[0], index)" mode="aspectFill">
         <div v-if="dynamicList.length === 0" class="blank">暂无动态</div>
       </div>
       <div v-if="currentTab === 'goods'" class="tabbox goods">
         <div v-if="goodsList.length === 0"  class="blank">暂无发布的物品</div>
-        <img v-for="item in goodsList" :src="item.goods_img[0] || '-'" :key="item.id" @click="toGoodsDetail(item._id)">
+        <img v-for="item in goodsList" :src="item.goods_img[0] || '-'" :key="item.id" @click="toGoodsDetail(item._id)" mode="aspectFill">
       </div>
       <div v-if="currentTab === 'detail'" class="tabbox detail">
         <i-row class="detail_row">
@@ -44,7 +44,7 @@
         </i-row>
         <i-row class="detail_row">
           <i-col span="8" i-class="col-class" style="color: #ccc;">置换次数</i-col>
-          <i-col span="16" i-class="col-class">{{userInfo.changeCount}}</i-col>
+          <i-col span="16" i-class="col-class">{{userInfo.change_time}}</i-col>
         </i-row>
          <i-row class="detail_row">
           <i-col span="8" i-class="col-class" style="color: #ccc;">简介</i-col>
@@ -52,7 +52,7 @@
         </i-row>
       </div>
     </div>
-    <div class="chat_bt" @click="handleClick">和他聊天</div>
+    <div class="chat_bt" @click="toChat">和他聊天</div>
     <send></send>
   </div>
 </template>
@@ -125,6 +125,7 @@ export default {
         data: userData
       }).then(res => {
         this.userInfo = res.result.data[0]
+        console.log(res.result.data[0])
         wx.setNavigationBarTitle({title: `${this.userInfo.nickname}的首页`})
       }).then(() => {
         this.getGoodsList()
@@ -176,6 +177,11 @@ export default {
       wx.navigateTo({
         url: `/pages/goodsDetail/main?id=${id}`
       })
+    },
+    toChat () {
+      wx.navigateTo({
+        url: `/pages/chatInfo/main?id=${this.userInfo.user_id}`
+      })
     }
   }
 }
@@ -187,7 +193,8 @@ export default {
 }
 .head {
   width:100vw;
-  height: 100vh;
+  height: 30vh;
+  position: absolute
   img {
     height: 100%;
     width: 100%;
@@ -203,26 +210,30 @@ export default {
 .main {
   width: 90%;
   height: auto;
-  position: absolute;
-  top: 300rpx;
-  left: 0;
-  right: 0;
-  margin: auto;
+  // position: absolute;
+  // top: 300rpx;
+  // left: 0;
+  // right: 0;
+  margin:0 auto;
   // background: rgba(#fff,0.8);
 }
 .info {
-  width: 100vw;
-  height: 350rpx;
+  width: 90%;
+  height: 250rpx;
   text-align: center;
-  background: #ccc;
+  background: rgba($color: #ffda00, $alpha: 0.3);
   padding: 50rpx 0;
   position: relative;
-  color: #fff;
+  // color: #fff;
+  margin: 40rpx auto;
+  border-radius: 6px;
   img {
     width: 150rpx;
     height: 150rpx;
     border-radius: 50%;
   }
+  // box-shadow: 0 2px 30px 10px rgba($color: #ffda00, $alpha: 0.4);
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
 }
 .tabbox {
   background: rgba(#fff,1);
@@ -265,7 +276,7 @@ export default {
   margin: auto;
   height: 80rpx;
   text-align: center;
-  background:orange;
+  background:#ffda00;
   color: #fff;
   line-height: 80rpx;
   border-radius: 40rpx;

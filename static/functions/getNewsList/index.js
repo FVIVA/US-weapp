@@ -8,7 +8,10 @@ cloud.init({
 const db = cloud.database()
 // 云函数入口函数
 exports.main = async (event, context) => {
-  // const wxContext = cloud.getWXContext()
-  const newsList = await db.collection('news').get()
-  return newsList
+  try {
+    const newsInfo = await db.collection('news').get()
+    return newsInfo
+  } catch (e) {
+    console.log(e)
+  }
 }

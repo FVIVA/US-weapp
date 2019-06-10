@@ -8,7 +8,7 @@
       <i-divider v-if="blank" content="加载已经完成,没有其他数据"></i-divider>
       <div class="more-goods">
       <div class="more-goods__item" v-for="item in moreGoodList" :key="item.id" @click="toGoodsDetail(item._id)">
-        <img class="more-goods__item_pic" :src="item.goods_img[0]">
+        <img class="more-goods__item_pic" :src="item.goods_img[0]" mode="aspectFill">
         <div class="more-goods__item_price">
           <img src="/static/images/jinbi.png">
           {{item.price}}

@@ -19,7 +19,10 @@
     "pages/login/main",
     "pages/adminIndex/main",
     "pages/userAdmin/main",
-    "pages/authAdmin/main"
+    "pages/authAdmin/main",
+    "pages/goodsAdmin/main",
+    "pages/adAdmin/main",
+    "pages/chatInfo/main"
   ],
   "window": {
     "backgroundTextStyle": "light",

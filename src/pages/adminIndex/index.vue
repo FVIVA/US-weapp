@@ -36,10 +36,29 @@ export default {
         url: '/pages/userAdmin/main'
       })
     },
-    toAdsAdmin () {},
-    toAuthAdmin () {},
-    toGoodsAdmin () {},
-    toNewsAdmin () {}
+    toAdsAdmin () {
+      wx.navigateTo({
+        url: '/pages/adAdmin/main'
+      })
+    },
+    toAuthAdmin () {
+      wx.navigateTo({
+        url: '/pages/authAdmin/main'
+      })
+    },
+    toGoodsAdmin () {
+      wx.navigateTo({
+        url: '/pages/goodsAdmin/main'
+      })
+    },
+    toNewsAdmin () {
+      wx.navigateTo({
+        url: '/pages/userAdmin/main'
+      })
+    },
+    toIndex () {
+      wx.switchTab({url: '/pages/index/main'})
+    }
   }
 }
 </script>

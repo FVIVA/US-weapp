@@ -1,8 +1,8 @@
 <template>
   <div>
-    <img class="bg" src="../../../static/images/pesonbg.jpg">
+    <!-- <img class="bg" src="../../../static/images/pesonbg.jpg"> -->
     <div class="head">
-       <input placeholder="这是一个可以自动聚焦的input" auto-focus v-model="searchKey"/>
+       <input placeholder="输入关键词" v-model="searchKey"/>
        <i-icon type="search" size="24" color="#000" @click="searchDynamic" />
     </div>
     <div class="main">
@@ -17,13 +17,14 @@
         <div class="info__item_txt">{{item.dynamic_content}}</div>
          <div class="info__item_pic">
           <!-- <div class="info__pic_item"> -->
-            <img v-for="(pic,picIndex) in item.dynamic_img" :src="pic" :key="pic.id" @click="previewDynamic(pic,index)">
+            <img v-for="(pic,picIndex) in item.dynamic_img" :src="pic" :key="pic.id" @click="previewDynamic(pic,index)" mode="aspectFill">
           <!-- </div> -->
          </div>
-        <div class="info__item_tool">
-          <img v-if="!item.isLiked" src="/static/images/zan.png" @click="changeState(item)">
-          <img v-else src="/static/images/zan2.png" @click="changeState(item)">
-          {{item.like_count}}
+        <div class="info__item_tool" v-if="item.location">
+          <span v-if="item.location">
+            <img src="/static/images/weizhi.png" @click="changeState(item)">
+            {{item.location}}
+          </span>
         </div>
       </div>
     </div>
@@ -43,7 +44,11 @@ export default {
   components: {
     send
   },
-
+  computed: {
+    userInfo () {
+      return this.$store.state.userInfo
+    }
+  },
   data () {
     return {
       dynamicList: [],
@@ -51,6 +56,10 @@ export default {
       searchKey: '',
       blank: false
     }
+  },
+  onPullDownRefresh () {
+    console.log('下拉')
+    this.getDynamicList()
   },
   methods: {
     time (date) {
@@ -101,12 +110,26 @@ export default {
           this.blank = false
         }
         this.dynamicList = res.result.data.reverse()
+        wx.stopPullDownRefresh()
         this.dynamicList.forEach(v => {
           v.create_time = dateformate(v.create_time)
         })
       })
     },
     toUserDetail (id) {
+      if (!this.userInfo.nickname) {
+        wx.showToast({
+          title: '请先登录',
+          icon: 'none',
+          duration: 3000,
+          complete: () => {
+            wx.navigateTo({
+              url: '/pages/personal/main'
+            })
+          }
+        })
+        return 0
+      }
       wx.navigateTo({
         url: `/pages/personIndex/main?id=${id}`
       })
@@ -154,6 +177,10 @@ export default {
 }
 .info__item {
   padding: 20rpx;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  width: 85%;
+  margin: 0 auto;
+  margin-bottom: 20rpx;
   &_head {
     font-size: 28rpx;
     margin-bottom: 30rpx;
@@ -168,11 +195,10 @@ export default {
     padding-right: 40rpx;
   }
   &_tool {
-    text-align: right;
+    // text-align: right;
     font-size: 22rpx;
     color: #80848f;
     margin-right: 20rpx;
-
     img {
       width: 40rpx;
       height: 40rpx;
@@ -183,6 +209,7 @@ export default {
     text-align: center;
     img {
       border-radius: 20rpx;
+      width: 100%;
     }
   }
 }
